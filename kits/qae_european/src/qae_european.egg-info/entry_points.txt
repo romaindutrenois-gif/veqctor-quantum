@@ -1,0 +1,2 @@
+[console_scripts]
+qae-european = qae_european.cli:main
