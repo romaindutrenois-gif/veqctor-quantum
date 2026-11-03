@@ -12,7 +12,11 @@ Part 1 is pre-registered: it is written, approved and committed **before** the c
 
 The kit prices a European call with **maximum-likelihood amplitude estimation** (MLAE) on a quantum circuit simulator. The claim to test is the theoretical promise of amplitude estimation: **it needs fewer samples than Monte Carlo to reach the same accuracy**, quadratically fewer in the limit.
 
-**What "superiority" means in this campaign.** Superiority is measured as **sample complexity**: the error reached for a given number of calls.
+**Measure of performance: relative efficiency in number of calls.** Performance is measured by the error reached for a given number of calls (sample complexity, or *query complexity* for amplitude estimation, where a call is a query to the circuit A). Two methods are compared through their **relative efficiency** at a given RMSE ε:
+
+  E(ε) = N_comparator(ε) / N_QAE(ε)
+
+where N(ε) is the number of calls a method needs to reach RMSE ε. E > 1 means amplitude estimation needs fewer calls than the comparator; E < 1 means it needs more. Calls are counted as follows:
 
 - For amplitude estimation, a call is one application of the circuit A. One Grover step contains A and its inverse, so a measurement after k Grover steps counts as 2k + 1 calls.
 - For Monte Carlo, a call is one simulated path, i.e. one payoff evaluation.
@@ -32,12 +36,12 @@ The kit prices a European call with **maximum-likelihood amplitude estimation** 
 | # | Hypothesis | Type |
 | --- | --- | --- |
 | H0 | The circuit computes the grid price exactly, and the identity used to accelerate the campaign holds. | Prerequisite |
-| H1 | For the same number of calls, amplitude estimation has a smaller statistical error than plain Monte Carlo sampling the same grid. | Superiority over plain Monte Carlo |
-| H2 | The statistical error of amplitude estimation falls like 1/N, against 1/√N for plain Monte Carlo. | Convergence rate |
+| H1 | At equal calls, the RMSE of amplitude estimation is below that of plain Monte Carlo sampling the same grid, i.e. a relative efficiency E > 1. | Relative efficiency against plain Monte Carlo |
+| H2 | The query complexity of amplitude estimation is O(1/ε), against O(1/ε²) for plain Monte Carlo: its statistical error falls like 1/N, against 1/√N. | Query complexity (convergence rate) |
 | H3 | With 7 price qubits and the largest budget, the total error against Black-Scholes is within tolerance. | Accuracy against the reference |
-| H4 | Against quasi-Monte Carlo, the best classical sampling method for this one-dimensional problem, amplitude estimation shows no superiority. | Descriptive: measured, no pass/fail |
+| H4 | Against quasi-Monte Carlo, the best classical sampling method for this one-dimensional problem, no relative efficiency above 1 is expected. | Descriptive: measured, no pass/fail |
 
-H4 is stated in advance as an expected **absence** of superiority. Quasi-Monte Carlo converges close to 1/N on smooth one-dimensional problems, the same rate as amplitude estimation.
+H4 is stated in advance as an expected **absence** of gain (E ≤ 1). Quasi-Monte Carlo converges close to 1/N on smooth one-dimensional problems, the same rate as amplitude estimation.
 
 ### 1.3 Methods compared
 
@@ -103,6 +107,7 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 
 ### 1.8 Reported analyses (in addition to the criteria)
 
+- **Relative efficiency E at the largest budget**, per in-scope scenario, against Monte Carlo on the grid (n = 5 and n = 7) and against quasi-Monte Carlo (n = 7): median, first and third quartiles. E is estimated from the fitted error curves: E = N_comparator(ε) / N_QAE(ε), with ε the RMSE of amplitude estimation at its largest budget, and N_comparator(ε) read from the comparator's fitted log RMSE against log N (extrapolated beyond 26,200 calls where needed, flagged as such).
 - Errors by dimension: moneyness, maturity, volatility, rate and number of qubits, to find where amplitude estimation works best and worst.
 - The crossing budget N\*: the smallest budget where amplitude estimation beats Monte Carlo on the grid, for each scenario.
 - Discretisation bias against Black-Scholes, as a function of n and of the scenario.
@@ -113,6 +118,7 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 
 | Date | Deviation | Reason | Approved by |
 | --- | --- | --- | --- |
+| 2026-11-03 | Terminology: "superiority" replaced by **relative efficiency** and **query complexity** (sections 1.1, 1.2), and the distribution of E added to the reported analyses (1.8). Criteria and thresholds unchanged. Made before sign-off and before any run. | Standard statistical terms, measurable per scenario | Romain Dutrenois |
 | 2026-11-03 | Before this campaign, in the exploratory version of the kit, the amplitude-estimation tolerance was tightened from 2% to 1% after a first run, and the budget increased. This plan replaces those exploratory tests; its criteria are set without reference to them. | Recorded for transparency | — |
 
 ### 1.10 Execution
