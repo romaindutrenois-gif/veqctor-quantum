@@ -2,6 +2,8 @@
 
 The simplest quantum pricer: a European call under Black-Scholes, priced with amplitude estimation on a simulator, and benchmarked against the Black-Scholes closed form.
 
+**Documentation:** [how the circuit works](docs/circuit.md) · [tests, results and how far it extends](docs/results.md)
+
 ## What it does
 
 1. **Discretise** the risk-neutral lognormal distribution of the terminal price on 2ⁿ points (`classical.discretise`).
