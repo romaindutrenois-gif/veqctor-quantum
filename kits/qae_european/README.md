@@ -1,3 +1,63 @@
-# qae_european
+# qae_european: amplitude estimation for a European call
 
-Status: see the table in the main [README](../../README.md). The kit follows the layout and the rules in the README and [CONTRIBUTING.md](../../CONTRIBUTING.md).
+The simplest quantum pricer: a European call under Black-Scholes, priced with amplitude estimation on a simulator, and benchmarked against the Black-Scholes closed form.
+
+## What it does
+
+1. **Discretise** the risk-neutral lognormal distribution of the terminal price on 2ⁿ points (`classical.discretise`).
+2. **Build the circuit A** on n + 1 qubits (`circuit.build_a`): load the distribution on n qubits, then rotate one extra qubit so that the probability of measuring it in state 1 equals the normalised payoff. The price is that probability times the largest payoff, discounted.
+3. **Read the probability** three ways:
+   - exactly, from the statevector, which checks the circuit itself;
+   - by sampling the circuit, as a quantum computer would without amplitude estimation;
+   - by **maximum-likelihood amplitude estimation** (Suzuki et al., 2020): powers of the Grover operator, no phase estimation.
+4. **Count the resources** (`resources.py`): qubits, CNOTs and depth after compilation, and the number of calls needed for a target accuracy, against plain Monte Carlo.
+
+## Results (spot 100, strike 105, rate 3%, volatility 20%, one year)
+
+| Method | Price |
+| --- | --- |
+| Black-Scholes closed form (validated benchmark) | 7.1281 |
+| Discretised distribution, 5 price qubits (classical) | 7.1120 |
+| Circuit, exact probability, 5 price qubits | 7.1120 |
+| Amplitude estimation, 5 price qubits, 26,600 calls of A | 7.0909 |
+| Plain Monte Carlo, 26,600 paths | 6.9951 ± 0.0759 |
+
+- The circuit reproduces the discretised price to machine precision.
+- The gap to Black-Scholes is the discretisation error (2% with 3 or 4 price qubits, 0.2% with 5). It shrinks with more qubits.
+- With the same number of calls, amplitude estimation lands within 0.3% of the circuit's exact price, while one standard error of Monte Carlo is 1.1%. That is the quadratic reduction in samples, at a small scale.
+
+## Tests
+
+Acceptance criteria, stated in advance in `tests/test_kit.py`:
+
+1. the circuit reproduces the discretised price to 1e-9;
+2. with 6 price qubits, the discretised price is within 2% of Black-Scholes;
+3. amplitude estimation lands within 1% of the exact circuit price;
+4. sampling the circuit without amplitude estimation behaves like Monte Carlo (within 4 standard errors).
+
+```
+pip install -r requirements.txt
+python circuit.py
+python resources.py
+pytest tests
+```
+
+## Limits: what this kit does not show
+
+- **No quantum advantage.** Everything runs on a classical simulator, and the closed form gives the price instantly. The kit shows the method and its benchmark, not a speed-up.
+- **The loading does not scale.** The distribution is loaded with exact state preparation and the payoff with one controlled rotation per price point. Both cost grows exponentially with the number of qubits (the CNOT counts in `resources.py` show it). Useful pricers need efficient loading, which is the open problem (see Vazquez and Woerner, 2021, and Stamatopoulos and Zeng, 2024).
+- **Call counts are not run times.** One call of A on a fault-tolerant machine is far slower than one Monte Carlo path on a GPU. Published estimates put a practical advantage for derivative pricing on fault-tolerant hardware, not on today's machines (Chakrabarti et al., 2021).
+- **Noise-free simulation.** Real hardware adds errors that grow with circuit depth.
+
+## Next steps
+
+- Efficient loading of the distribution instead of exact state preparation.
+- The same construction for Heston, benchmarked against the Veqctor Heston validation kit.
+- Runs of the 3-qubit circuit on cloud hardware to measure the effect of noise.
+
+## References
+
+- Suzuki et al., *Amplitude estimation without phase estimation*, Quantum Information Processing, 2020. [arXiv:1904.10246](https://arxiv.org/abs/1904.10246)
+- Stamatopoulos et al., *Option pricing using quantum computers*, Quantum, 2020. [arXiv:1905.02666](https://arxiv.org/abs/1905.02666)
+- Chakrabarti et al., *A threshold for quantum advantage in derivative pricing*, Quantum, 2021. [arXiv:2012.03819](https://arxiv.org/abs/2012.03819)
+- Vazquez and Woerner, *Efficient state preparation for quantum amplitude estimation*, Phys. Rev. Applied, 2021. [arXiv:2005.07711](https://arxiv.org/abs/2005.07711)

@@ -19,7 +19,7 @@ No quantum advantage has been demonstrated for any financial use case in product
 
 | Kit | Problem | Quantum algorithm | Classical benchmark | Status |
 | --- | --- | --- | --- | --- |
-| [`qae_european`](kits/qae_european) | European option price | Amplitude estimation (iterative, no phase estimation) | Black-Scholes closed form and Monte Carlo | In progress |
+| [`qae_european`](kits/qae_european) | European option price | Maximum-likelihood amplitude estimation (no phase estimation) | Black-Scholes closed form and Monte Carlo | Available |
 | [`qaoa_portfolio`](kits/qaoa_portfolio) | Portfolio selection with a cardinality constraint | QAOA | Exact enumeration and a classical solver | Planned |
 | [`born_machine`](kits/born_machine) | Generating a return distribution | Quantum circuit Born machine | Historical and parametric scenario generators | Planned |
 
