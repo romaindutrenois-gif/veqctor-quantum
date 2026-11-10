@@ -1,8 +1,8 @@
 # Document 3: Tests
 
-**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) submitted for sign-off; Part 2 (results) to be written after the campaign.
+**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) frozen by its commit before the campaign; Part 2 (results) to be written after the campaign. Sign-off of the whole kit by Romain Dutrenois at the end, after an independent review.
 
-Part 1 is pre-registered: it is written, approved and committed **before** the campaign runs. Any change made after approval is recorded in the deviations table (section 1.9), with its reason.
+Part 1 is pre-registered: it is written and committed **before** the campaign runs, and the commit date is the proof. Any change made after that commit is recorded in the deviations table (section 1.9), with its reason.
 
 ---
 
@@ -71,16 +71,18 @@ That is **1,848 scenarios**. Each is crossed with:
 
 - **price qubits** n = 3, 4, 5, 6, 7 (grids of 8 to 128 points);
 - **5 budgets**: MLAE ladders of depth 4 to 8, i.e. Grover powers (0, 1, 2, 4, …, 2^(depth−2)), 100 measurements per power. That gives 1,800, 3,500, 6,800, 13,300 and 26,200 calls. Monte Carlo methods get the same number of calls; quasi-Monte Carlo uses the largest power of two not above it;
-- **20 independent draws** of every random method.
+- **50 independent draws** of every random method.
 
-In total: 1,848 × 5 × 5 = 46,200 configurations, about 3.7 million priced estimates.
+In total: 1,848 × 5 × 5 = 46,200 configurations, about 9.2 million priced estimates.
 
 ### 1.5 Measured quantities
 
 For each scenario, number of qubits n and budget N, the campaign stores:
 
 - the Black-Scholes price, the grid price and the exact circuit price;
-- for each random method, the **root-mean-square error (RMSE)** over the 20 draws, against its own target (grid price or Black-Scholes, as in 1.3), and the RMSE of amplitude estimation against Black-Scholes;
+- for each random method, the **root-mean-square error (RMSE)** over the 50 draws, against its own target (grid price or Black-Scholes, as in 1.3), and the RMSE of amplitude estimation against Black-Scholes;
+- for amplitude estimation and Monte Carlo on the grid, the **median absolute error** against the grid price, which is not driven by a few large errors;
+- for amplitude estimation, the **share of mode errors**: draws where the estimated θ is further than π / (2 m_max) from the true θ, with m_max = 2 k_max + 1 the multiplier of the highest Grover power. That is half the period of the most informative measurement, so such a draw has locked onto a wrong peak of the likelihood;
 - the number of calls actually used.
 
 Seeds are derived from a fixed master seed (20261103) and the indices of scenario, qubits, budget and method, so any row can be recomputed on its own.
@@ -113,12 +115,14 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 - Discretisation bias against Black-Scholes, as a function of n and of the scenario.
 - The hard cases: deep out-of-the-money options (small amplitude), very short maturities, high volatility.
 - Counts of out-of-grid and negligible-price scenarios.
+- **Mode errors of amplitude estimation**: their share by scenario, number of qubits and budget, and where they concentrate. H1 is also reported on the median absolute error, as a sensitivity check. The criterion itself stays on the RMSE.
 
 ### 1.9 Deviations from the plan
 
 | Date | Deviation | Reason | Approved by |
 | --- | --- | --- | --- |
-| 2026-11-03 | Terminology: "superiority" replaced by **relative efficiency** and **query complexity** (sections 1.1, 1.2), and the distribution of E added to the reported analyses (1.8). Criteria and thresholds unchanged. Made before sign-off and before any run. | Standard statistical terms, measurable per scenario | Romain Dutrenois |
+| 2026-11-10 | **Draws raised from 20 to 50; median absolute error and share of mode errors added to the stored measures (1.5) and reported analyses (1.8).** Criteria unchanged. | While writing the user guide, one scenario was recomputed (scenario 1000: at the money, 5Y, vol 60%, rate 0%; n = 5, largest budget). One of its 20 draws had locked onto a wrong peak of the likelihood (θ off by about π/129), giving a price error of 33 on a price of 49; the RMSE over 20 draws was 7.4, against 0.5 over 200 draws. This is a known property of maximum-likelihood amplitude estimation: errors are mostly small, with rare large ones. With 20 draws the RMSE would depend on whether such a draw is in the sample. The method itself is left unchanged (the published one); the measurement is made more stable and the rare errors are counted rather than hidden. No other scenario was inspected. | Developer (Veqctor) |
+| 2026-11-03 | Terminology: "superiority" replaced by **relative efficiency** and **query complexity** (sections 1.1, 1.2), and the distribution of E added to the reported analyses (1.8). Criteria and thresholds unchanged. Made before any run. | Standard statistical terms, measurable per scenario | Romain Dutrenois |
 | 2026-11-03 | Before this campaign, in the exploratory version of the kit, the amplitude-estimation tolerance was tightened from 2% to 1% after a first run, and the budget increased. This plan replaces those exploratory tests; its criteria are set without reference to them. | Recorded for transparency | — |
 
 ### 1.10 Execution
@@ -126,14 +130,15 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 - **Environment:** Python 3.13, Qiskit 2.6.1, NumPy 2.5.4, SciPy 1.18.1, all versions pinned in `requirements-lock.txt`. CPU: 2-core Intel Xeon at 2.8 GHz, Linux. Details in Document 1.
 - **Commands:** `qae-european verify` (H0-b), then `qae-european campaign --processes 2` (resumable). Output: `results/verification.json` and `results/campaign.csv`.
 - **Acceleration (declared).** In the campaign, amplitude-estimation measurements are drawn from the exact probabilities sin²((2k + 1)θ), with θ taken from the exact statevector of the circuit A for each scenario. On a noise-free simulator, this is mathematically identical to simulating the circuits A Qᵏ. The identity is verified by H0-b.
-- **Sizing.** Timing was measured on 3 scenarios, timing only, without inspecting results: about 1.5 s per scenario, so about 25 minutes in total.
+- **Sizing.** Timing was measured on 3 scenarios, timing only, without inspecting results: about 1.5 s per scenario with 20 draws, so about 25 minutes in total. With 50 draws: about 1 hour on 2 cores.
 
 ### 1.11 Sign-off
 
 | Role | Name | Decision | Date |
 | --- | --- | --- | --- |
 | Author | Veqctor (kit generation) | Submitted | 2026-11-03 |
-| Reviewer | Romain Dutrenois | | |
+| Independent review | AI reviewer (separate session, no access to the build) | | |
+| Sign-off | Romain Dutrenois | | |
 
 ---
 

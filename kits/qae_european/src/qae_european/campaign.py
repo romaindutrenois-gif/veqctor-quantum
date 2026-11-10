@@ -6,7 +6,7 @@ moneyness K/S0 : 0.75 to 1.25 step 0.05 (11)    spot fixed at 100
 maturity       : 1W, 2W, 1M, 3M, 6M, 1Y, 3Y, 5Y (8)
 volatility     : 20% to 80% step 10% (7)
 rate           : -1%, 0%, 1% (3)
-=> 1,848 scenarios, each crossed with price qubits 3..7 and ladder depths 4..8 (100 shots per power), 20 draws.
+=> 1,848 scenarios, each crossed with price qubits 3..7 and ladder depths 4..8 (100 shots per power), 50 draws.
 
 For each (scenario, price qubits, budget) the runner records:
   bs                  Black-Scholes price
@@ -16,8 +16,12 @@ For each (scenario, price qubits, budget) the runner records:
   calls_qae           applications of A used by amplitude estimation
   qae_rmse_grid       RMS error of amplitude estimation against grid_price over the draws
   qae_rmse_bs         RMS error of amplitude estimation against bs
+  qae_medae_grid      median absolute error of amplitude estimation against grid_price (robust to rare large errors)
+  qae_mode_errors     share of draws where the estimated theta is on the wrong mode of the likelihood:
+                      |theta_hat - theta| > pi / (2 m_max), m_max = 2 k_max + 1 (half the period of the highest power)
   mc_rmse_bs          RMS error of plain Monte Carlo (continuous) against bs, same number of calls
   mcgrid_rmse_grid    RMS error of plain Monte Carlo on the grid against grid_price, same number of calls
+  mcgrid_medae_grid   median absolute error of plain Monte Carlo on the grid against grid_price
   qmc_rmse_bs         RMS error of quasi-Monte Carlo against bs, with its own number of points
   calls_qmc           points used by quasi-Monte Carlo (largest power of two <= calls_qae)
 
@@ -43,7 +47,7 @@ RATES = (-0.01, 0.0, 0.01)
 QUBITS = (3, 4, 5, 6, 7)
 DEPTHS = (4, 5, 6, 7, 8)
 SHOTS = 100
-DRAWS = 20
+DRAWS = 50
 METHOD_ID = {"qae": 0, "mc": 1, "mcgrid": 2, "qmc": 3}
 
 
@@ -75,6 +79,10 @@ def _rmse(x, target) -> float:
     return float(np.sqrt(np.mean((x - target) ** 2)))
 
 
+def _medae(x, target) -> float:
+    return float(np.median(np.abs(np.asarray(x, float) - target)))
+
+
 def run_scenario(sc: Scenario, qubits=QUBITS, depths=DEPTHS, draws=DRAWS) -> list:
     """All measures for one scenario, as a list of dict rows."""
     o = sc.option
@@ -96,7 +104,15 @@ def run_scenario(sc: Scenario, qubits=QUBITS, depths=DEPTHS, draws=DRAWS) -> lis
         mcg = MonteCarlo("grid", n)
         for d in depths:
             ladder = Ladder.exponential(d, SHOTS)
-            est = MaximumLikelihoodAE(ladder, "born").estimate_prices(pricer, rng_for(sc.index, n, d, "qae"), draws)
+            mlae = MaximumLikelihoodAE(ladder, "born")
+            if pricer.worthless:
+                est, mode_err = np.zeros(draws), 0.0
+            else:
+                hits = mlae.draw_hits(mlae.probabilities(pricer), rng_for(sc.index, n, d, "qae"), draws)
+                th = mlae.estimate_theta(hits)
+                est = np.atleast_1d(pricer.price_from_amplitude(np.sin(th) ** 2))
+                m_max = 2 * max(ladder.powers) + 1
+                mode_err = float(np.mean(np.abs(th - pricer.theta()) > np.pi / (2 * m_max)))
             r_g = rng_for(sc.index, n, d, "mcgrid")
             mcgs = [mcg.price(o, ladder.calls, r_g).value for _ in range(draws)]
             calls, mc_rmse, qmc_rmse, qmc_calls = per_budget[d]
@@ -105,7 +121,8 @@ def run_scenario(sc: Scenario, qubits=QUBITS, depths=DEPTHS, draws=DRAWS) -> lis
                 qubits=n, depth=d, bs=bs, grid_price=gp, circuit_price=cp, worthless=int(pricer.worthless),
                 calls_qae=ladder.calls, qae_mean=float(np.mean(est)),
                 qae_rmse_grid=_rmse(est, gp), qae_rmse_bs=_rmse(est, bs),
-                mc_rmse_bs=mc_rmse, mcgrid_rmse_grid=_rmse(mcgs, gp),
+                qae_medae_grid=_medae(est, gp), qae_mode_errors=mode_err,
+                mc_rmse_bs=mc_rmse, mcgrid_rmse_grid=_rmse(mcgs, gp), mcgrid_medae_grid=_medae(mcgs, gp),
                 qmc_rmse_bs=qmc_rmse, calls_qmc=qmc_calls))
     return rows
 

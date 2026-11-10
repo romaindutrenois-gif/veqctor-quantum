@@ -9,7 +9,7 @@ It is the simplest circuit we could build that still exercises the full amplitud
 | This guide | Install, run, reproduce, extend | Current |
 | [Document 1: Circuit](docs/circuit.md) | The circuit, environment, inputs, outputs, reproducibility | To be written |
 | [Document 2: Benchmarks](docs/benchmarks.md) | The comparators, why they were chosen, their code and parameters | To be written |
-| [Document 3: Tests](docs/tests.md) | Pre-registered test plan (Part 1), results and verdicts (Part 2) | Part 1 awaiting sign-off |
+| [Document 3: Tests](docs/tests.md) | Pre-registered test plan (Part 1), results and verdicts (Part 2) | Part 1 frozen; Part 2 to be written |
 
 Earlier exploratory documents are kept in `docs/archive/` for the record. They describe a previous version of the code and are superseded.
 
