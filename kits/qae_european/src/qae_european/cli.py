@@ -2,6 +2,26 @@
 import argparse, csv, json, warnings
 
 
+def _write_run_info(path):
+    """Record which code and environment produced the results, next to them."""
+    import os, platform, subprocess, sys, datetime
+    import numpy, scipy, qiskit
+    from . import __version__, campaign
+    here = os.path.dirname(os.path.abspath(__file__))
+    try:
+        commit = subprocess.run(["git", "-C", here, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        dirty = bool(subprocess.run(["git", "-C", here, "status", "--porcelain", "--", "."], capture_output=True, text=True).stdout.strip())
+    except OSError:
+        commit, dirty = "", None
+    info = dict(started=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+                package_version=__version__, package_path=here, git_commit=commit, uncommitted_changes=dirty,
+                seed=campaign.SEED, draws=campaign.DRAWS, shots=campaign.SHOTS, qubits=campaign.QUBITS, depths=campaign.DEPTHS,
+                python=sys.version.split()[0], platform=platform.platform(),
+                qiskit=qiskit.__version__, numpy=numpy.__version__, scipy=scipy.__version__)
+    with open(path, "w") as f:
+        json.dump(info, f, indent=1)
+
+
 def main(argv=None):
     warnings.filterwarnings("ignore", category=DeprecationWarning)
     ap = argparse.ArgumentParser(prog="qae-european")
@@ -42,6 +62,7 @@ def main(argv=None):
     elif a.cmd == "campaign":
         from .campaign import run
         os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
+        _write_run_info(os.path.join(os.path.dirname(a.out) or ".", "run_info.json"))
         print(f"{run(a.out, a.start, a.stop, a.processes)} scenarios run")
 
 
