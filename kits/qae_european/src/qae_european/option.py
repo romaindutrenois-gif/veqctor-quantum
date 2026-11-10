@@ -1,6 +1,7 @@
 """Contract and market inputs."""
 from dataclasses import dataclass
 import math
+import numbers
 
 
 @dataclass(frozen=True)
@@ -24,9 +25,9 @@ class Option:
     def __post_init__(self):
         for name in ("spot", "strike", "vol", "maturity"):
             v = getattr(self, name)
-            if not (isinstance(v, (int, float)) and math.isfinite(v) and v > 0):
+            if isinstance(v, bool) or not (isinstance(v, numbers.Real) and math.isfinite(v) and v > 0):
                 raise ValueError(f"{name} must be a positive finite number, got {v!r}")
-        if not math.isfinite(self.rate):
+        if isinstance(self.rate, bool) or not (isinstance(self.rate, numbers.Real) and math.isfinite(self.rate)):
             raise ValueError("rate must be finite")
 
     @property

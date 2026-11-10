@@ -1,5 +1,6 @@
 """Discretisation of the terminal price distribution on 2**n points (the input the circuit loads)."""
 from dataclasses import dataclass, field
+import numbers
 import numpy as np
 from scipy.stats import norm
 
@@ -34,7 +35,7 @@ class LognormalGrid:
     prices: np.ndarray = field(init=False, repr=False)
 
     def __post_init__(self):
-        if not (isinstance(self.n_qubits, int) and 1 <= self.n_qubits <= 16):
+        if isinstance(self.n_qubits, bool) or not (isinstance(self.n_qubits, numbers.Integral) and 1 <= self.n_qubits <= 16):
             raise ValueError("n_qubits must be an integer between 1 and 16")
         if self.width <= 0:
             raise ValueError("width must be positive")

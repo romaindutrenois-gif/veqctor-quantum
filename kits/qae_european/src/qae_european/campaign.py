@@ -130,14 +130,23 @@ def run_scenario(sc: Scenario, qubits=QUBITS, depths=DEPTHS, draws=DRAWS) -> lis
 def run(out_csv: str, start: int = 0, stop: int | None = None, processes: int = 1, progress: bool = True):
     """Run scenarios [start, stop) and append rows to out_csv. Scenarios already in the file are skipped (resumable)."""
     todo = scenarios()[start:stop]
+    per_scenario = len(QUBITS) * len(DEPTHS)
     done = set()
-    if os.path.exists(out_csv):
+    if os.path.exists(out_csv) and os.path.getsize(out_csv) > 0:
         with open(out_csv) as f:
-            done = {int(r["scenario"]) for r in csv.DictReader(f)}
+            counts = {}
+            for r in csv.DictReader(f):
+                counts[int(r["scenario"])] = counts.get(int(r["scenario"]), 0) + 1
+        # a scenario counts as done only if all its rows are present
+        done = {k for k, c in counts.items() if c == per_scenario}
+        partial = {k for k, c in counts.items() if c != per_scenario}
+        if partial:
+            raise RuntimeError(f"{out_csv} holds incomplete scenarios {sorted(partial)[:10]}: "
+                               "remove their rows (or the file) before resuming")
     todo = [s for s in todo if s.index not in done]
     if not todo:
         return 0
-    write_header = not os.path.exists(out_csv)
+    write_header = not (os.path.exists(out_csv) and os.path.getsize(out_csv) > 0)
     t0 = time.time()
     with open(out_csv, "a", newline="") as f:
         w = None
@@ -166,19 +175,22 @@ def verify_circuits(n_scenarios: int = 20, seed: int = SEED):
     """Full statevector simulation of A Q^k on a random subset of scenarios.
 
     Checks that P(objective = 1) after k Grover steps equals sin^2((2k+1) theta) - the identity the
-    'born' backend relies on. Powers up to 64 for 3-5 price qubits, up to 8 for 6-7 (simulation cost).
+    'born' backend relies on. Powers up to 64 for 3-5 price qubits, up to 8 for 6-7 (simulation cost),
+    plus the full ladder (powers up to 64) for 6 and 7 price qubits on the first scenario drawn.
     Returns rows with the largest absolute difference per (scenario, qubits).
     """
     rng = np.random.default_rng(seed)
     pick = rng.choice(len(scenarios()), n_scenarios, replace=False)
     out = []
+    first = int(sorted(pick)[0])
     for idx in sorted(pick):
         sc = scenarios()[idx]
         for n in QUBITS:
             p = QuantumPricer(LognormalGrid(sc.option, n))
             if p.worthless:
                 continue
-            powers = Ladder.exponential(8 if n <= 5 else 5).powers
+            full = n <= 5 or idx == first
+            powers = Ladder.exponential(8 if full else 5).powers
             sim = p.probabilities_after_grover(powers)
             th = p.theta()
             theory = np.array([np.sin((2 * k + 1) * th) ** 2 for k in powers])

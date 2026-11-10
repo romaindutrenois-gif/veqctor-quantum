@@ -89,3 +89,57 @@ def test_campaign_grid_and_row():
     r = rows[0]
     assert r["calls_qae"] == 1800 and abs(r["circuit_price"] - r["grid_price"]) < 1e-9
     assert run_scenario(sc[100], qubits=(3,), depths=(4,), draws=3) == rows      # seeded: identical
+
+
+# ---------- added after the internal cold review ----------
+
+def test_mlae_finds_the_global_maximum():
+    """The estimator must return the global maximum of the likelihood, checked on a 400,001-point grid,
+    including deep ladders where nearly tied peaks occur (regression test for the single-candidate refinement)."""
+    p = QuantumPricer(LognormalGrid(Option(100, 100, 0.0, 0.6, 5.0), 5))
+    for depth in (8, 12):
+        ae = MaximumLikelihoodAE(Ladder.exponential(depth))
+        hits = ae.draw_hits(ae.probabilities(p), np.random.default_rng(7), 100)
+        th = ae.estimate_theta(hits)
+        m = np.array([2 * k + 1 for k in ae.ladder.powers])
+        tt = np.linspace(0, np.pi / 2, 400_001)
+        q = np.clip(np.sin(m[:, None] * tt) ** 2, 1e-15, 1 - 1e-15)
+        ll = hits @ np.log(q) + (100 - hits) @ np.log(1 - q)
+        fine = tt[np.argmax(ll, axis=1)]
+        assert np.all(np.abs(fine - th) < np.pi / (2 * m.max()))
+
+
+def test_mlae_on_a_worthless_option_returns_zero():
+    p = QuantumPricer(LognormalGrid(Option(100, 1000, 0.0, 0.2, 1 / 52), 3))
+    assert p.worthless
+    assert np.all(MaximumLikelihoodAE(Ladder.exponential(4)).estimate_prices(p, np.random.default_rng(0), 3) == 0)
+
+
+def test_inputs_accept_numpy_numbers_and_reject_bad_types():
+    o = Option(np.float64(100), np.int64(105), np.float64(0.01), np.float64(0.2), np.int64(1))
+    LognormalGrid(o, np.int64(3))
+    with pytest.raises(ValueError):
+        LognormalGrid(o, 3.0)
+    with pytest.raises(ValueError):
+        Option(True, 100, 0.0, 0.2, 1.0)
+    with pytest.raises(ValueError):
+        Ladder.exponential(17)
+
+
+def test_cli_price_prints_valid_json(capsys):
+    import json
+    from qae_european.cli import main
+    main(["price", "--qubits", "3", "--depth", "4"])
+    out = json.loads(capsys.readouterr().out)          # strict JSON: no NaN
+    assert out["calls"] == 1800 and out["quasi_monte_carlo"]["stderr"] is None
+
+
+def test_campaign_resume_refuses_incomplete_scenarios(tmp_path):
+    import csv
+    from qae_european import campaign
+    path = tmp_path / "c.csv"
+    rows = run_scenario(scenarios()[0], qubits=(3,), depths=(4,), draws=2)
+    with open(path, "w", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
+    with pytest.raises(RuntimeError):
+        campaign.run(str(path), 0, 1, progress=False)

@@ -8,8 +8,8 @@ def _plain(estimate):
     return {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in estimate.__dict__.items()}
 
 
-def _write_run_info(path):
-    """Record which code and environment produced the results, next to them."""
+def _write_run_info(path, start=0, stop=None):
+    """Append a record of the code and environment of this run (one entry per call, resumes included)."""
     import os, platform, subprocess, sys, datetime
     import numpy, scipy, qiskit
     from . import __version__, campaign
@@ -19,17 +19,23 @@ def _write_run_info(path):
         dirty = bool(subprocess.run(["git", "-C", here, "status", "--porcelain", "--", "."], capture_output=True, text=True).stdout.strip())
     except OSError:
         commit, dirty = "", None
-    info = dict(started=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
+    info = dict(scenarios=[start, stop], started=datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
                 package_version=__version__, package_path=here, git_commit=commit, uncommitted_changes=dirty,
                 seed=campaign.SEED, draws=campaign.DRAWS, shots=campaign.SHOTS, qubits=campaign.QUBITS, depths=campaign.DEPTHS,
                 python=sys.version.split()[0], platform=platform.platform(),
                 qiskit=qiskit.__version__, numpy=numpy.__version__, scipy=scipy.__version__)
+    log = []
+    if os.path.exists(path):
+        with open(path) as f:
+            old = json.load(f)
+        log = old if isinstance(old, list) else [old]
+    log.append(info)
     with open(path, "w") as f:
-        json.dump(info, f, indent=1)
+        json.dump(log, f, indent=1)
 
 
 def main(argv=None):
-    warnings.filterwarnings("ignore", category=DeprecationWarning)
+    warnings.filterwarnings("ignore", category=DeprecationWarning, module="qiskit")
     ap = argparse.ArgumentParser(prog="qae-european")
     sub = ap.add_subparsers(dest="cmd", required=True)
     p = sub.add_parser("price", help="price one option with every method")
@@ -68,7 +74,7 @@ def main(argv=None):
     elif a.cmd == "campaign":
         from .campaign import run
         os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
-        _write_run_info(os.path.join(os.path.dirname(a.out) or ".", "run_info.json"))
+        _write_run_info(os.path.join(os.path.dirname(a.out) or ".", "run_info.json"), a.start, a.stop)
         print(f"{run(a.out, a.start, a.stop, a.processes)} scenarios run")
 
 
