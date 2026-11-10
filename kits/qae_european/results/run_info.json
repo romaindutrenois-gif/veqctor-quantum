@@ -1,29 +1,35 @@
-{
- "started": "2026-11-10T08:05:53+00:00",
- "package_version": "1.0.0",
- "package_path": "/home/claude/veqctor-quantum/kits/qae_european/src/qae_european",
- "git_commit": "13af41da8259b1918f38cde160b08fa9b1246555",
- "uncommitted_changes": false,
- "seed": 20261103,
- "draws": 50,
- "shots": 100,
- "qubits": [
-  3,
-  4,
-  5,
-  6,
-  7
- ],
- "depths": [
-  4,
-  5,
-  6,
-  7,
-  8
- ],
- "python": "3.13.17",
- "platform": "Linux-6.18.44-fc-v338-x86_64-with-glibc2.39",
- "qiskit": "2.6.1",
- "numpy": "2.5.4",
- "scipy": "1.18.1"
-}
+[
+ {
+  "scenarios": [
+   0,
+   null
+  ],
+  "started": "2026-11-10T09:04:32+00:00",
+  "package_version": "1.0.0",
+  "package_path": "/home/claude/veqctor-quantum/kits/qae_european/src/qae_european",
+  "git_commit": "2d83462d1d1ceb46949a9f14cee7002d3e0ad4ee",
+  "uncommitted_changes": false,
+  "seed": 20261103,
+  "draws": 50,
+  "shots": 100,
+  "qubits": [
+   3,
+   4,
+   5,
+   6,
+   7
+  ],
+  "depths": [
+   4,
+   5,
+   6,
+   7,
+   8
+  ],
+  "python": "3.13.17",
+  "platform": "Linux-6.18.44-fc-v338-x86_64-with-glibc2.39",
+  "qiskit": "2.6.1",
+  "numpy": "2.5.4",
+  "scipy": "1.18.1"
+ }
+]

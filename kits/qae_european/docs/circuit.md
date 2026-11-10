@@ -90,16 +90,20 @@ With 100 shots, depths 4 to 8 give N = 1,800, 3,500, 6,800, 13,300 and 26,200 ca
 
 It is maximised in two steps:
 
-1. a grid search over 4,001 equally spaced points on [0, π/2];
-2. a bounded scalar refinement (`scipy.optimize.minimize_scalar`, tolerance 10⁻¹²) within one grid step of the best point.
+1. a grid search over equally spaced points on [0, π/2]: at least 4,001, and at least 200 per period of the most oscillating term (100 × m_max + 1 points, with m_max = 2k_max + 1);
+2. a bounded scalar refinement (`scipy.optimize.minimize_scalar`, tolerance 10⁻¹²) within one grid step of each of the **5 highest local maxima** of the grid. The best refined point is kept.
 
 Probabilities are clipped to [10⁻¹⁵, 1 − 10⁻¹⁵] to avoid log(0). The price estimate is e^(−rT) g_max sin²θ̂.
 
-The grid is fine enough to resolve the likelihood. At depth 8, the highest power has a multiplier of 2k + 1 = 129, and the likelihood oscillates with period π/129 ≈ 0.024 in θ: about 62 grid points per period.
+Why several candidates: when two peaks of the likelihood are nearly tied, the grid can rank them in the wrong order, because it samples each peak slightly off its top. Refining only the best grid point would then return the lower peak. An earlier version did exactly that. An internal review found it failed in about 1 draw in 200 at depth 8 and in every draw at depth 14 on the widest scenario. It was corrected before the campaign was re-run (Document 3, section 1.9). A unit test now compares the estimator with a 400,001-point grid at depths 8 and 12, and `docs/checks.py` does the same for every campaign configuration with a mode error. `Ladder.exponential` accepts depths up to 16.
 
 **Known limitation: mode errors.** L(θ) has several local maxima. The higher powers make it oscillate quickly, while the low powers, which only see a few shots each, are what tell those maxima apart. Occasionally the noise in the low-power counts makes a wrong local maximum the highest one. The estimate then lands about π/(2k_max + 1) away from the true θ. Such errors are rare but large.
 
-This is a property of MLAE with an exponential ladder, not a bug. The code finds the global maximum, which was checked on a 400,001-point grid on the case that revealed it. The campaign keeps the published method unchanged, uses 50 draws per configuration, and records the share of draws affected (Document 3, sections 1.5 and 1.9).
+This is a property of MLAE with an exponential ladder, not of the optimiser: the estimate is the true global maximum of the likelihood (`docs/checks.py`, results in Document 3, section 2.9). The campaign keeps the published method unchanged, uses 50 draws per configuration, and records the share of draws affected (Document 3, sections 1.5 and 1.9).
+
+*How mode errors are counted.* A draw counts as a mode error when |θ̂ − θ| > π/(2 m_max), half the period of the most oscillating term. Two consequences:
+- The threshold is wide for short ladders (π/10 at depth 4). The absence of mode errors at low depth is partly a consequence of the definition.
+- A wrong peak lying closer to the true θ than the threshold would not be counted.
 
 ## 7. Simulating the measurements
 
@@ -108,16 +112,16 @@ Two backends give the measurement probabilities. On a noise-free simulator they 
 | Backend | How | Used for |
 | --- | --- | --- |
 | `statevector` | Builds A and Q in Qiskit and evolves the exact statevector through A Qᵏ, then reads P(objective = 1). | Verification, the user guide |
-| `born` | Takes θ from the exact statevector of A, then uses P_k = sin²((2k + 1)θ). | The campaign (about 9.2 million estimates) |
+| `born` | Takes θ from the exact statevector of A, then uses P_k = sin²((2k + 1)θ). | The campaign (2.31 million amplitude-estimation estimates) |
 
 In both cases, the measurement counts are then drawn as h_k ~ Binomial(shots, P_k). This is exactly what a noise-free sampler would return.
 
 The `born` backend relies on the identity in section 5. It is checked by full statevector simulation on 20 scenarios drawn at random, for every number of qubits where the option is not worthless (`qae-european verify`, hypothesis H0-b of Document 3):
 
 - for n ≤ 5, powers up to 64, which covers the full ladder of depth 8;
-- for n = 6 and 7, powers up to 8, because simulation cost grows with the depth of A Qᵏ.
+- for n = 6 and 7, powers up to 8, because simulation cost grows with the depth of A Qᵏ; plus the full ladder (powers up to 64) on the first of the 20 scenarios, so the largest circuits are also checked at the largest power the campaign uses.
 
-The identity holds for any k: it follows from Q being a rotation. Higher powers for n = 6 and 7 are covered by that argument, not by simulation. Document 3 reports the outcome.
+The identity holds for any k: it follows from Q being a rotation. Document 3 reports the outcome.
 
 ## 8. Circuit size
 
@@ -193,11 +197,13 @@ qae-european verify                            # H0-b
 qae-european campaign --processes 2            # Document 3 campaign
 python docs/make_figures.py                    # figures of this document (needs the docs extra)
 python docs/analyse.py                         # Document 3: criteria, summary.json and figures
+python docs/checks.py                          # results/checks.json: state-preparation accuracy, MLAE global maximum
 ```
 
 ## 11. Limitations
 
 - **Exact loading does not scale** (section 8). The kit demonstrates the method, not a practical pricer.
+- **Numerical precision of the synthesis.** Qiskit's synthesis of the state preparation adds a floating-point error that grows with the number of qubits: about 10⁻¹³ at n = 5, 10⁻¹¹ at n = 6 and 10⁻⁹ to 10⁻¹⁰ at n = 7 on the loaded probabilities (`docs/checks.py`). The circuit price then matches the grid price to a relative 10⁻⁸, not to machine precision. This is far below any statistical error, but it matters for exact-equality tests (Document 3, section 2.4).
 - **Noise-free simulation.** No hardware noise and no error mitigation. Real hardware would add errors that grow with circuit depth.
 - **The error is scaled by the largest payoff.** The price is read as e^(−rT) g_max a. With high volatility or long maturity, g_max is far above the price: on the 5-year, 60%-volatility at-the-money scenario, g_max ≈ 7,100 for a price of about 49. The amplitude a is then small, and its error is magnified in the price. A narrower `width` reduces g_max but increases the truncation bias. The default, 4 standard deviations, is a common choice and is not tuned per scenario.
 - **Mode errors of MLAE** (section 6).

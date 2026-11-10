@@ -317,19 +317,28 @@ It is maximised in two steps:
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  a grid search over 4,001 equally spaced points on {[}0, π/2{]};
+  a grid search over equally spaced points on {[}0, π/2{]}: at least
+  4,001, and at least 200 per period of the most oscillating term (100 ×
+  m\_max + 1 points, with m\_max = 2k\_max + 1);
 \item
   a bounded scalar refinement (\texttt{scipy.optimize.minimize\_scalar},
-  tolerance 10⁻¹²) within one grid step of the best point.
+  tolerance 10⁻¹²) within one grid step of each of the \textbf{5 highest
+  local maxima} of the grid. The best refined point is kept.
 \end{enumerate}
 
 Probabilities are clipped to {[}10⁻¹⁵, 1 − 10⁻¹⁵{]} to avoid log(0). The
 price estimate is e\^{}(−rT) g\_max sin²θ̂.
 
-The grid is fine enough to resolve the likelihood. At depth 8, the
-highest power has a multiplier of 2k + 1 = 129, and the likelihood
-oscillates with period π/129 ≈ 0.024 in θ: about 62 grid points per
-period.
+Why several candidates: when two peaks of the likelihood are nearly
+tied, the grid can rank them in the wrong order, because it samples each
+peak slightly off its top. Refining only the best grid point would then
+return the lower peak. An earlier version did exactly that. An internal
+review found it failed in about 1 draw in 200 at depth 8 and in every
+draw at depth 14 on the widest scenario. It was corrected before the
+campaign was re-run (Document 3, section 1.9). A unit test now compares
+the estimator with a 400,001-point grid at depths 8 and 12, and
+\texttt{docs/checks.py} does the same for every campaign configuration
+with a mode error. \texttt{Ladder.exponential} accepts depths up to 16.
 
 \textbf{Known limitation: mode errors.} L(θ) has several local maxima.
 The higher powers make it oscillate quickly, while the low powers, which
@@ -338,11 +347,26 @@ Occasionally the noise in the low-power counts makes a wrong local
 maximum the highest one. The estimate then lands about π/(2k\_max + 1)
 away from the true θ. Such errors are rare but large.
 
-This is a property of MLAE with an exponential ladder, not a bug. The
-code finds the global maximum, which was checked on a 400,001-point grid
-on the case that revealed it. The campaign keeps the published method
-unchanged, uses 50 draws per configuration, and records the share of
-draws affected (Document 3, sections 1.5 and 1.9).
+This is a property of MLAE with an exponential ladder, not of the
+optimiser: the estimate is the true global maximum of the likelihood
+(\texttt{docs/checks.py}, results in Document 3, section 2.9). The
+campaign keeps the published method unchanged, uses 50 draws per
+configuration, and records the share of draws affected (Document 3,
+sections 1.5 and 1.9).
+
+\emph{How mode errors are counted.} A draw counts as a mode error when
+\textbar θ̂ − θ\textbar{} \textgreater{} π/(2 m\_max), half the period of
+the most oscillating term. Two consequences:
+
+\begin{itemize}
+\tightlist
+\item
+  The threshold is wide for short ladders (π/10 at depth 4). The absence
+  of mode errors at low depth is partly a consequence of the definition.
+\item
+  A wrong peak lying closer to the true θ than the threshold would not
+  be counted.
+\end{itemize}
 
 \hypertarget{7-simulating-the-measurements}{%
 \subsection{7. Simulating the
@@ -352,9 +376,9 @@ Two backends give the measurement probabilities. On a noise-free
 simulator they are mathematically identical:
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1630}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4986}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3184}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1542}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4718}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3540}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Backend
@@ -371,7 +395,8 @@ Used for
 statevector through A Qᵏ, then reads P(objective = 1). & Verification,
 the user guide \\
 \texttt{born} & Takes θ from the exact statevector of A, then uses P\_k
-= sin²((2k + 1)θ). & The campaign (about 9.2 million estimates) \\
+= sin²((2k + 1)θ). & The campaign (2.31 million amplitude-estimation
+estimates) \\
 \end{longtable}
 
 In both cases, the measurement counts are then drawn as h\_k
@@ -389,11 +414,12 @@ for every number of qubits where the option is not worthless
   for n ≤ 5, powers up to 64, which covers the full ladder of depth 8;
 \item
   for n = 6 and 7, powers up to 8, because simulation cost grows with
-  the depth of A Qᵏ.
+  the depth of A Qᵏ; plus the full ladder (powers up to 64) on the first
+  of the 20 scenarios, so the largest circuits are also checked at the
+  largest power the campaign uses.
 \end{itemize}
 
-The identity holds for any k: it follows from Q being a rotation. Higher
-powers for n = 6 and 7 are covered by that argument, not by simulation.
+The identity holds for any k: it follows from Q being a rotation.
 Document 3 reports the outcome.
 
 \hypertarget{8-circuit-size}{%
@@ -592,6 +618,7 @@ reproducible:
 \ExtensionTok{qae{-}european}\NormalTok{ campaign }\AttributeTok{{-}{-}processes}\NormalTok{ 2            }\CommentTok{\# Document 3 campaign}
 \ExtensionTok{python}\NormalTok{ docs/make\_figures.py                    }\CommentTok{\# figures of this document (needs the docs extra)}
 \ExtensionTok{python}\NormalTok{ docs/analyse.py                         }\CommentTok{\# Document 3: criteria, summary.json and figures}
+\ExtensionTok{python}\NormalTok{ docs/checks.py                          }\CommentTok{\# results/checks.json: state{-}preparation accuracy, MLAE global maximum}
 \end{Highlighting}
 \end{Shaded}
 
@@ -603,6 +630,15 @@ reproducible:
 \item
   \textbf{Exact loading does not scale} (section 8). The kit
   demonstrates the method, not a practical pricer.
+\item
+  \textbf{Numerical precision of the synthesis.}
+  Qiskit\textquotesingle s synthesis of the state preparation adds a
+  floating-point error that grows with the number of qubits: about 10⁻¹³
+  at n = 5, 10⁻¹¹ at n = 6 and 10⁻⁹ to 10⁻¹⁰ at n = 7 on the loaded
+  probabilities (\texttt{docs/checks.py}). The circuit price then
+  matches the grid price to a relative 10⁻⁸, not to machine precision.
+  This is far below any statistical error, but it matters for
+  exact-equality tests (Document 3, section 2.4).
 \item
   \textbf{Noise-free simulation.} No hardware noise and no error
   mitigation. Real hardware would add errors that grow with circuit

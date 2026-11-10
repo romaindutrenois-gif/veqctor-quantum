@@ -1,0 +1,28 @@
+{
+ "state_preparation": {
+  "scenario": 1000,
+  "by_qubits": {
+   "5": {
+    "max_abs_prob_error": 1.2602419108276308e-13,
+    "sum_minus_1": -9.547918011776346e-15,
+    "relative_amplitude_error": 4.652305051896844e-14
+   },
+   "6": {
+    "max_abs_prob_error": 3.141950588592124e-11,
+    "sum_minus_1": -1.1856071679972047e-12,
+    "relative_amplitude_error": 4.368244969448318e-12
+   },
+   "7": {
+    "max_abs_prob_error": 6.44542114125457e-10,
+    "sum_minus_1": 2.48334686148155e-12,
+    "relative_amplitude_error": 5.6668042592985525e-11
+   }
+  }
+ },
+ "mlae_global_maximum": {
+  "configurations_with_mode_errors": 43,
+  "draws_checked": 2150,
+  "mode_error_draws": 44,
+  "estimator_differs_from_fine_grid": 0
+ }
+}

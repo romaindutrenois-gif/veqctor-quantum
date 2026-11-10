@@ -11,7 +11,7 @@ It is the simplest circuit we could build that still exercises the full amplitud
 | [Document 2: Benchmarks](docs/benchmarks.md) | The comparators, why they were chosen, their code and parameters | Written |
 | [Document 3: Tests](docs/tests.md) | Pre-registered test plan (Part 1), results and verdicts (Part 2) | Written |
 
-The documents are also exported to Word, LaTeX and PDF in [`docs/export/`](docs/export/) (`python tools/export/export_docs.py kits/qae_european` from the repository root, after `python docs/build_benchmarks_doc.py`).
+The documents are also exported to Word, LaTeX and PDF in [`docs/export/`](docs/export/) To rebuild them: `python docs/build_benchmarks_doc.py` in the kit folder, then `python tools/export/export_docs.py kits/qae_european` from the repository root. This needs pandoc, XeLaTeX (TeX Live with fontspec and sectsty) and the DejaVu fonts.
 
 Earlier exploratory documents are kept in `docs/archive/` for the record. They describe a previous version of the code and are superseded.
 
@@ -51,7 +51,7 @@ No account or quantum hardware is needed: everything runs on a local simulator.
 qae-european price --spot 100 --strike 105 --rate 0.03 --vol 0.2 --maturity 1 --qubits 5 --depth 8 --seed 1
 ```
 
-Output (frozen environment):
+Output in the frozen environment (rounded here to 5 decimals; the command prints full precision):
 
 ```json
 {
@@ -69,7 +69,7 @@ How to read it:
 
 - `black_scholes` is the reference price.
 - `grid_price` is the price on the discretised distribution (2^5 = 32 points). The gap to Black-Scholes is the **discretisation bias**; it shrinks as `--qubits` grows.
-- `circuit_exact` is the price read from the exact state of the circuit. It must equal `grid_price` to machine precision: this checks the circuit.
+- `circuit_exact` is the price read from the exact state of the circuit. It must equal `grid_price` up to numerical precision: this checks the circuit. The difference is below 10⁻¹³ at 5 qubits and up to a relative 10⁻⁸ at 7, from Qiskit's synthesis of the state preparation (Document 1, section 11).
 - `amplitude_estimation` is one MLAE estimate using `calls` applications of the circuit A. Its error against `grid_price` is the **statistical error**.
 - `monte_carlo` uses the same number of calls (paths). Quasi-Monte Carlo uses the largest power of two not above it (a Sobol requirement). Its `stderr` is not defined for a single scrambled sequence, hence `null`.
 
@@ -93,6 +93,15 @@ mlae = MaximumLikelihoodAE(ladder, backend="statevector")   # simulates A Q^k in
 print(mlae.estimate_prices(pricer, np.random.default_rng(1), draws=5), ladder.calls)
 ```
 
+Expected output (frozen environment), after a few seconds:
+
+```
+7.1280646692617395 7.1120286452832895 7.112028645283094
+[7.09877631 7.14967104 7.09960548 7.12204347 7.11001134] 26200
+```
+
+The first estimate is the same as the `amplitude_estimation` value of section 2: same seed, and the two backends give the same probabilities.
+
 Two backends give the same measurement probabilities on a noise-free simulator:
 
 - `"statevector"` simulates every circuit A Qᵏ with Qiskit. Exact, slow for large powers.
@@ -101,8 +110,8 @@ Two backends give the same measurement probabilities on a noise-free simulator:
 ## 4. Run the test campaign
 
 ```bash
-qae-european verify                         # H0-b: full simulation of A Q^k on 20 random scenarios
-qae-european campaign --processes 2         # 1,848 scenarios, about 25 minutes on 2 cores
+qae-european verify                         # H0-b: full simulation of A Q^k on 20 random scenarios, about 12 minutes
+qae-european campaign --processes 2         # 1,848 scenarios; measured: about 25 minutes on 2 cores
 ```
 
 Outputs go to `results/verification.json`, `results/campaign.csv` (one row per scenario, number of qubits and budget; columns described at the top of `src/qae_european/campaign.py`) and `results/run_info.json` (the commit, parameters and library versions of the run). The published results are in the repository.
@@ -111,6 +120,7 @@ To check them against the criteria of Document 3 and redraw its figures (needs t
 
 ```bash
 python docs/analyse.py                      # writes results/summary.json and docs/img/*.png
+python docs/checks.py                       # writes results/checks.json (state-preparation accuracy, MLAE global maximum)
 ```
 
 The campaign is **resumable**: scenarios already in the CSV are skipped. To split it, use `--start` and `--stop` (scenario indices, 0 to 1,848).
@@ -127,7 +137,7 @@ row = run_scenario(sc, qubits=(5,), depths=(8,))[0]
 print(row)
 ```
 
-The values must match the corresponding row of `results/campaign.csv` exactly in the frozen environment.
+The values must match the row of `results/campaign.csv` with the same `scenario`, `qubits` and `depth`, exactly, in the frozen environment.
 
 ## 6. Code layout
 
@@ -143,16 +153,31 @@ src/qae_european/
   cli.py                 the qae-european command
 tests/test_package.py    unit tests
 docs/                    Documents 1 to 3, figures (make_figures.py), analysis (analyse.py), exports
-results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json
+results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json, checks.json
 ```
 
 ## 7. Adapt it to another payoff
 
 The circuit loads a distribution on n qubits, then rotates an objective qubit by the normalised payoff at each grid point. To price another payoff on the same underlying, change the payoff:
 
-1. Add a payoff method to `Option` (or a subclass), e.g. a put: `max(K − S, 0)`.
-2. `QuantumPricer` normalises the grid payoffs by their maximum and sets one rotation per point; it needs no change as long as payoffs are non-negative.
-3. Add the closed form, if there is one, as a benchmark, and run the unit tests.
+1. Subclass `Option` and override `payoff`. Everything else (`LognormalGrid`, `QuantumPricer`, `MonteCarlo`, `QuasiMonteCarlo`) calls `option.payoff`, so it follows. For a put:
+
+   ```python
+   from dataclasses import dataclass
+   import numpy as np
+   from qae_european import Option, LognormalGrid, QuantumPricer, MonteCarlo
+
+   @dataclass(frozen=True)
+   class Put(Option):
+       def payoff(self, prices):
+           return np.maximum(self.strike - np.asarray(prices, dtype=float), 0.0)
+
+   put = Put(spot=100, strike=95, rate=0.03, vol=0.2, maturity=1.0)
+   print(QuantumPricer(LognormalGrid(put, 5)).price_exact())                    # 4.3594 on the grid
+   print(MonteCarlo().price(put, 200_000, np.random.default_rng(0)).value)     # 4.3797; Black-Scholes put: 4.3720
+   ```
+2. `QuantumPricer` normalises the grid payoffs by their maximum and sets one rotation per point. It needs no change as long as payoffs are non-negative.
+3. `BlackScholes` prices calls only. Add the closed form of the new payoff, if there is one, as a benchmark (subclass `Benchmark`), and the campaign code will run against it once `campaign.run_scenario` calls it.
 
 Path-dependent payoffs (Asian, barrier) need more qubits per time step and are outside this kit.
 

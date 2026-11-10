@@ -83,6 +83,14 @@ def main():
     # ---------- H0 ----------
     d0 = [abs(r["circuit_price"] - r["grid_price"]) for r in rows]
     out["H0a"] = {"max_abs_diff": max(d0), **share(x <= 1e-9 for x in d0)}
+    pairs = [by[(s, n, 4)] for s in scen for n in QUBITS]                  # one row per circuit
+    bad = [r for r in pairs if abs(r["circuit_price"] - r["grid_price"]) > 1e-9]
+    out["H0a_detail"] = {
+        "circuits": len(pairs), "circuits_above_1e-9": len(bad),
+        "circuits_above_1e-9_by_qubits": {n: sum(1 for r in bad if r["qubits"] == n) for n in QUBITS},
+        "max_relative_diff": max(abs(r["circuit_price"] - r["grid_price"]) / r["grid_price"] for r in pairs if r["grid_price"] > 0),
+        "relative_restatement_pass": share(abs(r["circuit_price"] - r["grid_price"]) <= 1e-8 * r["grid_price"] for r in rows),
+    }
     ver = json.load(open(os.path.join(RES, "verification.json")))
     out["H0b"] = {"checks": len(ver), "max_abs_diff": max(v["max_abs_diff"] for v in ver),
                   **share(v["max_abs_diff"] <= 1e-9 for v in ver)}
@@ -116,12 +124,20 @@ def main():
             undefined += 1
         sq.append(a); sm.append(b)
     out["H2a"] = {**share(x is not None and x <= -0.8 for x in sq), "slopes": quart(sq), "undefined": sum(x is None for x in sq)}
+    s5 = [s for s in scen if in_scope(s, 5)]
+    ok2 = {s: (x is not None and x <= -0.8) for s, x in zip(s5, sq)}
+    out["H2a_by_maturity"] = {t: share(ok2[s] for s in s5 if meta[s]["maturity"] == t) for t in MATS}
+    out["H2a_by_vol"] = {v: share(ok2[s] for s in s5 if abs(meta[s]["vol"] - v) < 1e-9) for v in (0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8)}
+    out["H2a_up_to_1Y"] = share(ok2[s] for s in s5 if meta[s]["maturity"] not in ("3Y", "5Y"))
     out["H2b"] = {**share(x is not None and -0.65 <= x <= -0.35 for x in sm), "slopes": quart(sm), "undefined": sum(x is None for x in sm)}
 
     # ---------- H3 (n = 7, largest budget, against Black-Scholes) ----------
     h3 = [s for s in scen if in_scope(s, 7)]
     tol = lambda r: max(0.01 * r["bs"], 0.01)
     out["H3"] = share(by[(s, 7, LARGEST)]["qae_rmse_bs"] <= tol(by[(s, 7, LARGEST)]) for s in h3)
+    ok3 = {s: by[(s, 7, LARGEST)]["qae_rmse_bs"] <= tol(by[(s, 7, LARGEST)]) for s in h3}
+    out["H3_by_maturity"] = {t: share(ok3[s] for s in h3 if meta[s]["maturity"] == t) for t in MATS}
+    out["H3_up_to_1Y"] = share(ok3[s] for s in h3 if meta[s]["maturity"] not in ("3Y", "5Y"))
     f3 = [s for s in h3 if by[(s, 7, LARGEST)]["qae_rmse_bs"] > tol(by[(s, 7, LARGEST)])]
     out["H3_failures"] = {
         "by_maturity": {t: sum(1 for s in f3 if meta[s]["maturity"] == t) for t in MATS},
@@ -132,6 +148,9 @@ def main():
     # ---------- H4 (descriptive: n = 7, ratio RMSE against BS, QAE / QMC, per budget) ----------
     out["H4_ratio_qae_over_qmc"] = {d: quart(by[(s, 7, d)]["qae_rmse_bs"] / by[(s, 7, d)]["qmc_rmse_bs"]
                                          for s in h3 if by[(s, 7, d)]["qmc_rmse_bs"] > 0) for d in DEPTHS}
+    out["H4_qae_wins"] = {d: sum(1 for s in h3 if by[(s, 7, d)]["qae_rmse_bs"] < by[(s, 7, d)]["qmc_rmse_bs"]) for d in DEPTHS}
+    out["smallest_relative_rmse_qae"] = min(by[(s, n, d)]["qae_rmse_grid"] / by[(s, n, d)]["grid_price"]
+                                           for s in scen for n in QUBITS for d in DEPTHS if in_scope(s, n))
 
     # ---------- relative efficiency at the largest budget (section 1.8) ----------
     def eff(s, n, comp_err, comp_calls, qae_err):
@@ -141,8 +160,9 @@ def main():
         eps = top[qae_err]
         if sl is None or sl >= 0 or eps <= 0:
             return None, None
+        lo, hi = min(r[comp_calls] for r in rr), max(r[comp_calls] for r in rr)
         n_comp = float(np.exp((np.log(eps) - logc) / sl))     # calls the comparator needs to reach RMSE eps, on its fitted line
-        extrap = n_comp > max(r[comp_calls] for r in rr)
+        extrap = "above" if n_comp > hi else ("below" if n_comp < lo else None)
         return n_comp / top["calls_qae"], extrap
 
     E = {}
@@ -150,7 +170,9 @@ def main():
                                  ("vs_mc_grid_n7", 7, "mcgrid_rmse_grid", "calls_qae", "qae_rmse_grid"),
                                  ("vs_qmc_n7", 7, "qmc_rmse_bs", "calls_qmc", "qae_rmse_bs")):
         vals = [eff(s, n, ce, cc, qe) for s in scen if in_scope(s, n)]
-        E[label] = {**(quart(v for v, _ in vals) or {}), "extrapolated": sum(1 for v, x in vals if x),
+        E[label] = {**(quart(v for v, _ in vals) or {}),
+                    "extrapolated_above_largest_budget": sum(1 for v, x in vals if x == "above"),
+                    "extrapolated_below_smallest_budget": sum(1 for v, x in vals if x == "below"),
                     "above_1": sum(1 for v, _ in vals if v is not None and v > 1),
                     "undefined": sum(1 for v, _ in vals if v is None)}
     out["relative_efficiency_largest_budget"] = E
@@ -171,6 +193,14 @@ def main():
         k = next((by[(s, 5, d)]["calls_qae"] for d in DEPTHS if by[(s, 5, d)]["qae_rmse_grid"] < by[(s, 5, d)]["mcgrid_rmse_grid"]), "never")
         nstar[k] += 1
     out["crossing_budget_n5"] = dict(nstar)
+    stay = defaultdict(int)          # smallest budget from which amplitude estimation wins at every larger budget
+    for s in scen:
+        if not in_scope(s, 5):
+            continue
+        wins = [by[(s, 5, d)]["qae_rmse_grid"] < by[(s, 5, d)]["mcgrid_rmse_grid"] for d in DEPTHS]
+        k = next((by[(s, 5, DEPTHS[i])]["calls_qae"] for i in range(len(DEPTHS)) if all(wins[i:])), "never")
+        stay[k] += 1
+    out["wins_from_budget_onwards_n5"] = dict(stay)
     out["discretisation_bias_rel"] = {n: quart(abs(by[(s, n, 4)]["grid_price"] - meta[s]["bs"]) / meta[s]["bs"]
                                          for s in scen if in_scope(s, n)) for n in QUBITS}
     out["relative_rmse_largest_by_maturity_n5"] = {

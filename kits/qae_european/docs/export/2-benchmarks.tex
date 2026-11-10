@@ -273,13 +273,16 @@ comparator}\label{32-plain-monte-carlo-on-the-grid-the-like-for-like-comparator}
 \item
   \textbf{Why.} It estimates exactly the quantity the circuit encodes,
   the grid price, with the classical procedure the quantum algorithm
-  replaces: sampling the distribution and averaging the payoff. A
-  quantum computer measuring A directly, without Grover steps, would
-  behave the same way: Bernoulli draws with probability a. Amplitude
-  estimation is supposed to beat that, and this comparator isolates the
-  claim. There is no discretisation bias and no difference in target,
-  only statistical error against statistical error, at the same number
-  of calls.
+  replaces: sampling the distribution and averaging the payoff. It is a
+  \textbf{stronger} comparator than measuring the circuit A directly
+  without Grover steps. Direct measurement gives Bernoulli draws with
+  probability a, scaled by g\_max: their variance g\_max² a(1 − a) is
+  never below the variance of the payoff on the grid, and is 4.7 times
+  larger for the reference option. Beating grid Monte Carlo is therefore
+  the harder test. It isolates the claim that matters: amplitude
+  estimation against the classical procedure it replaces. There is no
+  discretisation bias and no difference in target, only statistical
+  error against statistical error, at the same number of calls.
 \item
   \textbf{Used for:} H1 and H2 (Document 3).
 \end{itemize}

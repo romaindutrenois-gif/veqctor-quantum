@@ -23,15 +23,15 @@
  {
   "scenario": 167,
   "qubits": 6,
-  "max_power": 8,
-  "max_abs_diff": 5.973799233061072e-11,
+  "max_power": 64,
+  "max_abs_diff": 3.026637274139432e-10,
   "grid_vs_circuit": 8.421778829870163e-10
  },
  {
   "scenario": 167,
   "qubits": 7,
-  "max_power": 8,
-  "max_abs_diff": 1.1675882483075384e-10,
+  "max_power": 64,
+  "max_abs_diff": 3.9741454571640134e-10,
   "grid_vs_circuit": 4.97649921271659e-10
  },
  {

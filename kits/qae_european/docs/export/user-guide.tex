@@ -162,10 +162,11 @@ they were chosen, their code and parameters & Written \\
 \end{longtable}
 
 The documents are also exported to Word, LaTeX and PDF in
-\href{docs/export/}{\texttt{docs/export/}}
-(\texttt{python\ tools/export/export\_docs.py\ kits/qae\_european} from
-the repository root, after
-\texttt{python\ docs/build\_benchmarks\_doc.py}).
+\href{docs/export/}{\texttt{docs/export/}} To rebuild them:
+\texttt{python\ docs/build\_benchmarks\_doc.py} in the kit folder, then
+\texttt{python\ tools/export/export\_docs.py\ kits/qae\_european} from
+the repository root. This needs pandoc, XeLaTeX (TeX Live with fontspec
+and sectsty) and the DejaVu fonts.
 
 Earlier exploratory documents are kept in \texttt{docs/archive/} for the
 record. They describe a previous version of the code and are superseded.
@@ -219,7 +220,8 @@ simulator.
 \end{Highlighting}
 \end{Shaded}
 
-Output (frozen environment):
+Output in the frozen environment (rounded here to 5 decimals; the
+command prints full precision):
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -247,8 +249,10 @@ How to read it:
   \textbf{discretisation bias}; it shrinks as \texttt{-\/-qubits} grows.
 \item
   \texttt{circuit\_exact} is the price read from the exact state of the
-  circuit. It must equal \texttt{grid\_price} to machine precision: this
-  checks the circuit.
+  circuit. It must equal \texttt{grid\_price} up to numerical precision:
+  this checks the circuit. The difference is below 10⁻¹³ at 5 qubits and
+  up to a relative 10⁻⁸ at 7, from Qiskit\textquotesingle s synthesis of
+  the state preparation (Document 1, section 11).
 \item
   \texttt{amplitude\_estimation} is one MLAE estimate using
   \texttt{calls} applications of the circuit A. Its error against
@@ -286,6 +290,17 @@ measurements each).
 \end{Highlighting}
 \end{Shaded}
 
+Expected output (frozen environment), after a few seconds:
+
+\begin{verbatim}
+7.1280646692617395 7.1120286452832895 7.112028645283094
+[7.09877631 7.14967104 7.09960548 7.12204347 7.11001134] 26200
+\end{verbatim}
+
+The first estimate is the same as the \texttt{amplitude\_estimation}
+value of section 2: same seed, and the two backends give the same
+probabilities.
+
 Two backends give the same measurement probabilities on a noise-free
 simulator:
 
@@ -306,8 +321,8 @@ simulator:
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\ExtensionTok{qae{-}european}\NormalTok{ verify                         }\CommentTok{\# H0{-}b: full simulation of A Q\^{}k on 20 random scenarios}
-\ExtensionTok{qae{-}european}\NormalTok{ campaign }\AttributeTok{{-}{-}processes}\NormalTok{ 2         }\CommentTok{\# 1,848 scenarios, about 25 minutes on 2 cores}
+\ExtensionTok{qae{-}european}\NormalTok{ verify                         }\CommentTok{\# H0{-}b: full simulation of A Q\^{}k on 20 random scenarios, about 12 minutes}
+\ExtensionTok{qae{-}european}\NormalTok{ campaign }\AttributeTok{{-}{-}processes}\NormalTok{ 2         }\CommentTok{\# 1,848 scenarios; measured: about 25 minutes on 2 cores}
 \end{Highlighting}
 \end{Shaded}
 
@@ -324,6 +339,7 @@ To check them against the criteria of Document 3 and redraw its figures
 \begin{Shaded}
 \begin{Highlighting}[]
 \ExtensionTok{python}\NormalTok{ docs/analyse.py                      }\CommentTok{\# writes results/summary.json and docs/img/*.png}
+\ExtensionTok{python}\NormalTok{ docs/checks.py                       }\CommentTok{\# writes results/checks.json (state{-}preparation accuracy, MLAE global maximum)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -348,8 +364,9 @@ recomputed on its own:
 \end{Highlighting}
 \end{Shaded}
 
-The values must match the corresponding row of
-\texttt{results/campaign.csv} exactly in the frozen environment.
+The values must match the row of \texttt{results/campaign.csv} with the
+same \texttt{scenario}, \texttt{qubits} and \texttt{depth}, exactly, in
+the frozen environment.
 
 \hypertarget{6-code-layout}{%
 \subsection{6. Code layout}\label{6-code-layout}}
@@ -366,7 +383,7 @@ src/qae_european/
   cli.py                 the qae-european command
 tests/test_package.py    unit tests
 docs/                    Documents 1 to 3, figures (make_figures.py), analysis (analyse.py), exports
-results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json
+results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json, checks.json
 \end{verbatim}
 
 \hypertarget{7-adapt-it-to-another-payoff}{%
@@ -379,17 +396,37 @@ payoff on the same underlying, change the payoff:
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
-\tightlist
 \item
-  Add a payoff method to \texttt{Option} (or a subclass), e.g. a put:
-  \texttt{max(K\ −\ S,\ 0)}.
+  Subclass \texttt{Option} and override \texttt{payoff}. Everything else
+  (\texttt{LognormalGrid}, \texttt{QuantumPricer}, \texttt{MonteCarlo},
+  \texttt{QuasiMonteCarlo}) calls \texttt{option.payoff}, so it follows.
+  For a put:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ dataclasses }\ImportTok{import}\NormalTok{ dataclass}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ qae\_european }\ImportTok{import}\NormalTok{ Option, LognormalGrid, QuantumPricer, MonteCarlo}
+
+\AttributeTok{@dataclass}\NormalTok{(frozen}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\KeywordTok{class}\NormalTok{ Put(Option):}
+    \KeywordTok{def}\NormalTok{ payoff(}\VariableTok{self}\NormalTok{, prices):}
+        \ControlFlowTok{return}\NormalTok{ np.maximum(}\VariableTok{self}\NormalTok{.strike }\OperatorTok{{-}}\NormalTok{ np.asarray(prices, dtype}\OperatorTok{=}\BuiltInTok{float}\NormalTok{), }\FloatTok{0.0}\NormalTok{)}
+
+\NormalTok{put }\OperatorTok{=}\NormalTok{ Put(spot}\OperatorTok{=}\DecValTok{100}\NormalTok{, strike}\OperatorTok{=}\DecValTok{95}\NormalTok{, rate}\OperatorTok{=}\FloatTok{0.03}\NormalTok{, vol}\OperatorTok{=}\FloatTok{0.2}\NormalTok{, maturity}\OperatorTok{=}\FloatTok{1.0}\NormalTok{)}
+\BuiltInTok{print}\NormalTok{(QuantumPricer(LognormalGrid(put, }\DecValTok{5}\NormalTok{)).price\_exact())                    }\CommentTok{\# 4.3594 on the grid}
+\BuiltInTok{print}\NormalTok{(MonteCarlo().price(put, }\DecValTok{200\_000}\NormalTok{, np.random.default\_rng(}\DecValTok{0}\NormalTok{)).value)     }\CommentTok{\# 4.3797; Black{-}Scholes put: 4.3720}
+\end{Highlighting}
+\end{Shaded}
 \item
   \texttt{QuantumPricer} normalises the grid payoffs by their maximum
-  and sets one rotation per point; it needs no change as long as payoffs
+  and sets one rotation per point. It needs no change as long as payoffs
   are non-negative.
 \item
-  Add the closed form, if there is one, as a benchmark, and run the unit
-  tests.
+  \texttt{BlackScholes} prices calls only. Add the closed form of the
+  new payoff, if there is one, as a benchmark (subclass
+  \texttt{Benchmark}), and the campaign code will run against it once
+  \texttt{campaign.run\_scenario} calls it.
 \end{enumerate}
 
 Path-dependent payoffs (Asian, barrier) need more qubits per time step

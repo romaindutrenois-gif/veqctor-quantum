@@ -293,7 +293,8 @@ That is \textbf{1,848 scenarios}. Each is crossed with:
 \end{itemize}
 
 In total: 1,848 × 5 × 5 = 46,200 configurations, about 9.2 million
-priced estimates.
+priced estimates. \emph{{[}Erratum, see 1.9: 2.31 million
+amplitude-estimation estimates, about 5.5 million in all.{]}}
 
 \hypertarget{15-measured-quantities}{%
 \subsubsection{1.5 Measured quantities}\label{15-measured-quantities}}
@@ -434,10 +435,10 @@ criteria)}\label{18-reported-analyses-in-addition-to-the-criteria}}
 plan}\label{19-deviations-from-the-plan}}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0534}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3723}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.4475}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1068}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0460}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.4567}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3853}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0920}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Date
@@ -452,6 +453,28 @@ Approved by
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
+2026-11-10 & \textbf{Corrections after an internal review, and the
+campaign re-run.} A review in a separate session, working from a fresh
+clone, found that the MLAE maximisation refined only the best grid
+point, so with two nearly tied likelihood peaks it could return the
+lower one (1 draw in 2.31 million in the first campaign; frequent at
+depths above 8). Corrected: denser grid for deep ladders, and refinement
+of the 5 highest grid peaks (Document 1, section 6). Because the code
+that produced the results changed, \textbf{the whole campaign was
+re-run} on the corrected code (commit 2d83462). At the same time, and
+before the re-run: H0-b was extended with the full ladder (powers up to
+64) at n = 6 and 7 on one scenario; the campaign resume refuses
+incomplete scenarios; \texttt{run\_info.json} became a log of every run;
+\texttt{docs/analyse.py} and \texttt{docs/checks.py} were extended so
+every number in Part 2 is computed by a script. Criteria unchanged. The
+first campaign\textquotesingle s results stay in the repository history
+(commit 373e6a1). & Optimiser error and traceability gaps found in
+review & Developer (Veqctor) \\
+2026-11-10 & \textbf{Erratum to 1.4.} "About 9.2 million priced
+estimates" counted continuous Monte Carlo and quasi-Monte Carlo once per
+number of qubits. They are computed once per scenario and budget: 2.31
+million amplitude-estimation estimates, about 5.5 million in all. &
+Counting error in the plan text & Developer (Veqctor) \\
 2026-11-10 & \textbf{Proposed, not applied: H0-a restated as a relative
 tolerance}, \textbar circuit − grid\textbar{} ≤ 1e-8 × grid price. Post
 hoc: made after seeing that H0-a fails as written (Part 2, section 2.4).
@@ -526,10 +549,10 @@ Recorded for transparency & --- \\
 \subsubsection{1.11 Sign-off}\label{111-sign-off}}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2342}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.4056}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1656}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1746}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2116}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3664}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2443}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1577}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Role
@@ -545,7 +568,9 @@ Date
 \bottomrule\noalign{}
 \endlastfoot
 Author & Veqctor (kit generation) & Submitted & 2026-11-03 \\
-Independent review & AI reviewer (separate session, no access to the
+Internal review & Developer\textquotesingle s reviewer (separate
+session, fresh clone) & Findings corrected (1.9) & 2026-11-10 \\
+Independent review & AI reviewer (separate project, no access to the
 build) & & \\
 Sign-off & Romain Dutrenois & & \\
 \end{longtable}
@@ -555,17 +580,27 @@ Sign-off & Romain Dutrenois & & \\
 \hypertarget{part-2-results}{%
 \subsection{Part 2: Results}\label{part-2-results}}
 
-Every number below comes from \texttt{results/summary.json}, produced by
-\texttt{docs/analyse.py} from \texttt{results/campaign.csv} and
-\texttt{results/verification.json}. All four files are in the
-repository.
+Every number below is computed by a script in the kit:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{docs/analyse.py} writes \texttt{results/summary.json} from
+  \texttt{results/campaign.csv} and \texttt{results/verification.json}.
+\item
+  \texttt{docs/checks.py} writes \texttt{results/checks.json}: the
+  state-preparation accuracy and the global-maximum check of MLAE.
+\end{itemize}
+
+All of these files are in the repository. Where the text quotes a
+number, the key in the JSON file is given in brackets.
 
 \hypertarget{21-execution-record}{%
 \subsubsection{2.1 Execution record}\label{21-execution-record}}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.2423}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.7377}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.2315}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.7485}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Item
@@ -576,33 +611,58 @@ Value
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Code & commit 13af41d, no uncommitted changes
+Code & commit 2d83462, no uncommitted changes in the package
 (\texttt{results/run\_info.json}) \\
-Plan & frozen at commit 422ebfb, before the run \\
+Plan & frozen at commit 422ebfb; criteria unchanged since \\
 Environment & Python 3.13.17, Qiskit 2.6.1, NumPy 2.5.4, SciPy 1.18.1,
 Linux, 2 cores \\
 Run & 2026-11-10: verification (100 checks), then 1,848 scenarios × 5
-qubit counts × 5 budgets × 50 draws \\
+qubit counts × 5 budgets × 50 draws, in one call \\
 Rows & 46,200 (complete) \\
-Wall time & about 6 minutes for the verification and 17 minutes for the
-campaign \\
+Wall time & about 12 minutes for the verification and 25 minutes for the
+campaign, on 2 cores \\
 \end{longtable}
 
-\textbf{Incidents during execution:}
+\textbf{Runs before this one} (section 1.9):
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  \textbf{A first campaign run was discarded unread.} It ran on a stale
-  copy of the package (section 1.9).
+  \textbf{A first run was discarded unread.} It ran on a stale copy of
+  the package.
 \item
-  \textbf{The analysis script had a bug} in the relative-efficiency
-  calculation: the fitted intercept was used on the wrong scale. The
-  script crashed, the cause was fixed, and the analysis was rerun. The
-  fix touches only the relative efficiency (section 1.8). No acceptance
-  criterion depends on it.
+  \textbf{A second run was complete and published} (commit 373e6a1). An
+  internal review then found the MLAE optimiser could return the lower
+  of two nearly tied peaks. The optimiser was corrected and the campaign
+  re-run. That is this run.
 \end{enumerate}
+
+Its results differ from the second run\textquotesingle s in a handful of
+configurations:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3924}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.3102}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2774}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Statistic
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Second run
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+This run
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+H1 passes & 8,772 & 8,774 \\
+H3 passes & 1,594 & 1,595 \\
+Mode-error draws & 45 & 44 \\
+\end{longtable}
+
+No verdict changes.
 
 \hypertarget{22-scope}{%
 \subsubsection{2.2 Scope}\label{22-scope}}
@@ -636,10 +696,10 @@ at each n \\
 \subsubsection{2.3 Verdicts}\label{23-verdicts}}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0719}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3448}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2690}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2943}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.0680}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3261}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2544}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3314}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 \#
@@ -660,88 +720,106 @@ validated} as written; see 2.4 \\
 H0-b & Full simulation of A Qᵏ against sin²((2k + 1)θ) ≤ 1e-9 in 100\% &
 100\% (100 of 100); largest difference 6.1e-10 & \textbf{Validated} \\
 H1 & At 26,200 calls, RMSE of amplitude estimation \textless{} Monte
-Carlo on the grid, ≥ 95\% & 97.8\% (8,772 of 8,965) & \textbf{Validated}
-(conditional on 2.4) \\
+Carlo on the grid, ≥ 95\% & 97.9\% (8,774 of 8,965) &
+\textbf{Validated}, conditional on 2.4 \\
 H2-a & Slope ≤ −0.8 for amplitude estimation, n = 5, in ≥ 90\% & 89.0\%
-(1,595 of 1,793); median slope −0.98 & \textbf{Not validated}
-(conditional on 2.4) \\
+(1,595 of 1,793); median slope −0.98 & \textbf{Not validated},
+conditional on 2.4; see 2.6 on the limits rule \\
 H2-b & Slope between −0.65 and −0.35 for Monte Carlo on the grid, n = 5,
 in ≥ 90\% & 99.8\% (1,790 of 1,793); median slope −0.50 &
-\textbf{Validated} (conditional on 2.4) \\
+\textbf{Validated}, conditional on 2.4 \\
 H3 & n = 7, largest budget: RMSE against Black-Scholes ≤ max(1\% of the
-price, 0.01), in ≥ 95\% & 88.9\% overall; 99.0\% for maturities up to 1
-year & \textbf{Validated with limits}: maturities up to 1 year
-(conditional on 2.4) \\
+price, 0.01), in ≥ 95\% & 89.0\% overall; 99.0\% for maturities up to 1
+year & \textbf{Validated with limits} (maturities up to 1 year),
+conditional on 2.4; see 2.6 on the limits rule \\
 H4 & QAE against QMC, descriptive & Median RMSE ratio 18 to 20, at every
 budget & As expected: no gain over QMC \\
 \end{longtable}
+
+\textbf{Conditional on 2.4} means: valid only if the restatement of H0-a
+proposed in 2.4 is accepted. Section 1.7 says that a failure of H0 stops
+interpretation, so without that restatement, H1 to H4 have no verdict.
 
 \hypertarget{24-h0-a-what-failed-and-what-it-means}{%
 \subsubsection{2.4 H0-a: what failed, and what it
 means}\label{24-h0-a-what-failed-and-what-it-means}}
 
-\textbf{The facts.}
+\textbf{The facts} {[}\texttt{H0a}, \texttt{H0a\_detail}{]}.
 
 \begin{itemize}
 \tightlist
 \item
-  978 of the 9,240 (scenario, n) circuits differ from the grid price by
-  more than 1e-9. Every one has 6 or 7 price qubits (826 at n = 7, 152
-  at n = 6).
+  978 of the 9,240 circuits differ from the grid price by more than
+  1e-9. All of them have 6 or 7 price qubits: 826 at n = 7 and 152 at n
+  = 6.
 \item
   The largest absolute difference is 8.4e-9. The largest
   \textbf{relative} difference, over all circuits, is 3.4e-9.
 \end{itemize}
 
-\textbf{The cause.} The deviation comes from Qiskit\textquotesingle s
-synthesis of the state preparation, not from the logic of the circuit.
+\textbf{The cause: Qiskit\textquotesingle s synthesis of the state
+preparation.}
 
 \begin{itemize}
-\tightlist
 \item
-  Checked on the 5-year, 60\%-volatility at-the-money option: the
-  probabilities loaded by \texttt{StatePreparation} differ from the
-  target p\_i by at most 1.3e-13 at n = 5, 3.1e-11 at n = 6 and 6.4e-10
-  at n = 7. Their sum deviates from 1 by 2.5e-12 at n = 7.
+  On the widest scenario (scenario 1000: at the money, 5Y, 60\%
+  volatility), the probabilities loaded by \texttt{StatePreparation}
+  differ from the target p\_i by at most
+  {[}\texttt{checks.json:\ state\_preparation}{]}:
+
+  \begin{longtable}[]{@{}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.3556}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.6244}}@{}}
+  \toprule\noalign{}
+  \begin{minipage}[b]{\linewidth}\raggedright
+  Price qubits
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  Largest error on a loaded probability
+  \end{minipage} \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  5 & 1.3e-13 \\
+  6 & 3.1e-11 \\
+  7 & 6.4e-10 \\
+  \end{longtable}
+
+  Their sum deviates from 1 by 2.5e-12 at n = 7.
 \item
-  The error grows with the size of the synthesised circuit, as expected
-  from floating-point accumulation over thousands of gates (Document 1,
-  section 8).
+  The payoff rotations and the Grover operator are not involved: H0-b
+  passes. H0-b now includes the full ladder, up to k = 64, at n = 6 and
+  7.
 \item
-  The payoff rotations and the Grover operator are not involved: H0-b,
-  which simulates the full Grover iterations, passes at 6.1e-10.
+  That the error accumulates in floating point over the thousands of
+  gates of the synthesised circuit is the natural explanation. It is not
+  proven here.
 \end{itemize}
 
-\textbf{Why the criterion failed.} The criterion was set as an
-\emph{absolute} 1e-9 on prices that reach a few hundred, and on circuits
-with up to 12,000 gates. A relative tolerance would have expressed the
-intent, "the circuit computes the grid price up to numerical precision",
-correctly. This is a specification error in the plan, made before the
-run.
+\textbf{Why the criterion failed.} The plan used an \emph{absolute}
+tolerance of 1e-9, on prices up to a few hundred and circuits of up to
+12,000 gates. A relative tolerance would have expressed what was meant:
+"the circuit computes the grid price up to numerical precision". This is
+an error in the plan, made before the run.
 
-\textbf{Effect on the other results: none in practice.} A relative error
+\textbf{The effect on the other results is negligible.} A relative error
 of 3.4e-9 is about five orders of magnitude below the smallest
 statistical error in the campaign: the smallest relative RMSE of
-amplitude estimation is 3.6e-4.
+amplitude estimation is 3.6e-4
+{[}\texttt{smallest\_relative\_rmse\_qae}{]}.
 
-\textbf{What the plan says.} "Failure of H0 stops the campaign: nothing
-else is interpreted." Applied literally, H1 to H4 have no verdict.
-
-\textbf{Proposed deviation (post hoc, not applied).} Restate H0-a as a
-relative tolerance: \textbar circuit − grid\textbar{} ≤ 1e-8 × grid
-price. Under it, H0-a passes in 100\% of cases.
+\textbf{Proposed deviation (post hoc, not applied).} Restate H0-a as
+\textbar circuit − grid\textbar{} ≤ 1e-8 × grid price. Under it, H0-a
+passes in 100\% of the 46,200 rows
+{[}\texttt{H0a\_detail.relative\_restatement\_pass}{]}.
 
 \begin{itemize}
 \tightlist
 \item
-  The proposal is made \textbf{after} seeing the results, so it is not
-  part of the pre-registered plan.
+  The proposal is made \textbf{after} seeing the results.
 \item
-  It is left to the independent review and to the sign-off to accept or
-  reject.
-\item
-  The verdicts on H1 to H4 above are given \textbf{conditionally on its
-  acceptance}, and marked as such.
+  Accepting or rejecting it is for the independent review and the
+  sign-off.
 \end{itemize}
 
 \hypertarget{25-h1-amplitude-estimation-against-monte-carlo-on-the-same-grid}{%
@@ -750,40 +828,42 @@ same
 grid}\label{25-h1-amplitude-estimation-against-monte-carlo-on-the-same-grid}}
 
 At the largest budget, amplitude estimation has the lower RMSE in
-\textbf{97.8\%} of in-scope (scenario, n) pairs. On the median absolute
-error, the share is 99.98\% (the sensitivity check of section 1.8).
+\textbf{97.9\%} of in-scope (scenario, n) pairs. On the median absolute
+error, the share is 99.98\%
+{[}\texttt{H1\_sensitivity\_median\_abs\_error}{]}.
 
 \includegraphics{img/h1_heatmap.png}
 
-\textbf{Where it loses.}
+\textbf{Where it loses} {[}\texttt{H1\_failures}{]}: mostly at long
+maturity and high volatility.
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{Long maturity and high volatility.} Of the 193 losses, 109 are
-  at 5Y and 45 at 3Y, and 72 at 80\% volatility. Losses also grow with
-  n: 14 at n = 3, 64 at n = 7.
+  Of the 191 losses, 106 are at 5Y and 46 at 3Y, and 73 are at 80\%
+  volatility.
 \item
-  \textbf{The cause is the payoff scaling} (Document 1, section 11). The
-  price is read as e\^{}(−rT) × largest grid payoff × amplitude. On a
-  wide grid the largest payoff is many times the price, the amplitude is
-  small, and its error is magnified. Monte Carlo on the grid has no such
-  factor.
-\item
-  \textbf{Mode errors} are present in 38 of the 193 losses.
+  Losses grow with n: 14 at n = 3, 63 at n = 7.
 \end{itemize}
 
-\textbf{Crossing budget} (n = 5): the smallest budget at which amplitude
-estimation beats Monte Carlo on the grid.
+\textbf{Why.} The price is read as e\^{}(−rT) × largest grid payoff ×
+amplitude (Document 1, section 11). On a wide grid the largest payoff is
+many times the price, so the amplitude is small and its error is
+magnified. Monte Carlo on the grid has no such factor. Mode errors are
+present in 37 of the 191 losses.
+
+\textbf{When amplitude estimation gets ahead (n = 5)}
+{[}\texttt{crossing\_budget\_n5},
+\texttt{wins\_from\_budget\_onwards\_n5}{]}:
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.2085}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1246}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1246}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1246}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1365}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1365}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1246}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.3398}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1034}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1034}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1034}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1133}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1133}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 12\tabcolsep) * \real{0.1034}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Budget (calls)
@@ -804,10 +884,18 @@ Never
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Scenarios & 764 & 708 & 250 & 55 & 14 & 2 \\
+First budget where it wins & 764 & 708 & 250 & 55 & 14 & 2 \\
+First budget from which it wins at every larger budget & 657 & 637 & 297
+& 119 & 50 & 33 \\
 \end{longtable}
 
-In 82\% of scenarios, amplitude estimation is ahead from 3,500 calls.
+\begin{itemize}
+\tightlist
+\item
+  82\% of scenarios have a first win by 3,500 calls.
+\item
+  72\% win at every budget from 3,500 onwards.
+\end{itemize}
 
 \hypertarget{26-h2-convergence-rate}{%
 \subsubsection{2.6 H2: convergence rate}\label{26-h2-convergence-rate}}
@@ -816,33 +904,92 @@ In 82\% of scenarios, amplitude estimation is ahead from 3,500 calls.
 
 \includegraphics{img/slopes.png}
 
-\textbf{Monte Carlo on the grid (H2-b) behaves exactly as theory
-predicts.} The median slope is −0.50, with quartiles −0.53 and −0.47,
-and 99.8\% of scenarios are in the band. This confirms the benchmark and
-the fitting procedure.
+\textbf{Monte Carlo on the grid (H2-b) behaves as theory predicts.} The
+median slope is −0.50, with quartiles −0.53 and −0.47, and 99.8\% of
+scenarios fall in the band. This confirms both the benchmark and the
+fitting procedure.
 
-\textbf{Amplitude estimation (H2-a) has a median slope of −0.98}, with
-quartiles −1.04 and −0.90: the 1/N rate in the bulk of the scenarios.
+\textbf{Amplitude estimation (H2-a) shows the 1/N rate in the bulk of
+scenarios.} The median slope is −0.98, with quartiles −1.04 and −0.90.
 But 11.0\% of scenarios have a slope above −0.8, against the 10\% the
 criterion allows.
+
+\textbf{The limits rule, applied to H2-a and H3 alike.} Section 1.7
+allows \emph{Validated with limits} "if a criterion fails only in an
+identifiable region of the grid". The plan does not define "identifiable
+region", so any region is chosen after seeing the results. Both
+hypotheses are reported the same way {[}\texttt{H2a\_by\_maturity},
+\texttt{H3\_by\_maturity}{]}:
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1707}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2337}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1653}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1653}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2451}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Pass rate, maturities 1W to 1Y
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Pass rate at 3Y
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Pass rate at 5Y
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Restricted to maturities up to 1Y
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+H2-a (needs 90\%) & 88\% to 93\% & 84\% & 81\% & 91.2\%: passes \\
+H3 (needs 95\%) & 98\% to 100\% & 70\% & 50\% & 99.0\%: passes \\
+\end{longtable}
 
 \begin{itemize}
 \tightlist
 \item
-  \textbf{The failures are spread across the grid.} By maturity they
-  range from 15 to 43, by volatility from 20 to 39. Limiting to
-  maturities up to 1 year raises the share only to 91.1\%. There is no
-  identifiable region, so the verdict is \emph{Not validated}, not
-  \emph{Validated with limits}.
+  \textbf{H3 failures are concentrated:} 185 of the 198 failures are at
+  3Y and 5Y, and every maturity up to 1Y passes on its own.
 \item
-  \textbf{The likely reasons are noise and the low budgets.} Each slope
-  is fitted on 5 RMSEs, each estimated from 50 draws (a relative
-  standard error of about 10\% each). Over that range, the noise moves
-  the slope by several hundredths. At the low budgets (depth 4: powers
-  0, 1 and 2 only), MLAE is not yet in its asymptotic regime, and the
-  slope over 1,800 to 26,200 calls mixes the two regimes. A longer
-  ladder or more draws would sharpen the estimate. Neither was planned,
-  and neither has been tried.
+  \textbf{H2-a failures are spread out:} they appear at every maturity
+  and every volatility. Pass rates by volatility run from 85\% to 91\%,
+  and two maturities within the "up to 1Y" region fail on their own (3M
+  at 88.3\%, 1Y at 89.6\%). Restricting to maturities up to 1Y lifts
+  H2-a just above 90\% by averaging, not by removing the failures.
+\end{itemize}
+
+\textbf{The developer\textquotesingle s reading:}
+
+\begin{itemize}
+\tightlist
+\item
+  H3 is \emph{Validated with limits} (maturities up to 1 year);
+\item
+  H2-a is \emph{Not validated}.
+\end{itemize}
+
+This reading treats "only in an identifiable region" as requiring the
+criterion to hold for each maturity inside the region. That condition is
+not in the plan, so the reading is a judgement. It is left to the review
+and the sign-off.
+
+\textbf{Likely reasons for the H2-a dispersion (not tested):}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Noise in each slope.} Each slope is fitted on 5 RMSEs, each
+  estimated from 50 draws, so each RMSE carries a relative standard
+  error of about 10\%. Over this range of budgets, that moves the slope
+  by several hundredths.
+\item
+  \textbf{The low budgets are not asymptotic.} At depth 4 (powers 0, 1
+  and 2 only), MLAE is not yet in its asymptotic regime, so the fitted
+  slope mixes two regimes.
+\item
+  \textbf{Follow-ups.} A longer ladder or more draws would sharpen the
+  estimate. Neither was planned.
 \end{itemize}
 
 \hypertarget{27-h3-accuracy-against-black-scholes-n--7}{%
@@ -850,20 +997,27 @@ criterion allows.
 7}\label{27-h3-accuracy-against-black-scholes-n--7}}
 
 Against Black-Scholes, the RMSE is within max(1\% of the price, 0.01) in
-\textbf{88.9\%} of scenarios overall, and \textbf{99.0\%} of the 1,331
-scenarios with maturity up to 1 year. Failures are concentrated where
-the grid is widest: 69 at 3Y and 117 at 5Y out of 199, and they grow
-with volatility (70 at 80\%).
+89.0\% of scenarios overall, and in \textbf{99.0\%} of the 1,331
+scenarios with maturity up to 1 year {[}\texttt{H3},
+\texttt{H3\_up\_to\_1Y}{]}. Failures grow with volatility: 70 of them
+are at 80\% {[}\texttt{H3\_failures}{]}.
 
-In 67 of the 199 failures, the \textbf{discretisation bias alone}
-exceeds the tolerance: no amount of sampling can bring those scenarios
-within 1\% with 128 grid points. The rest come from the payoff scaling
-described in 2.5.
+\textbf{Two causes:}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Discretisation bias, in 67 of the 198 failures.} There, the
+  bias alone exceeds the tolerance: no amount of sampling can bring
+  those scenarios within 1\% with 128 grid points.
+\item
+  \textbf{The payoff scaling described in 2.5,} in the rest.
+\end{itemize}
 
 \includegraphics{img/discretisation_bias.png}
 
 The median relative discretisation bias falls from 2.9\% at n = 3 to
-0.11\% at n = 7.
+0.11\% at n = 7 {[}\texttt{discretisation\_bias\_rel}{]}.
 
 \hypertarget{28-h4-and-relative-efficiency}{%
 \subsubsection{2.8 H4 and relative
@@ -871,25 +1025,32 @@ efficiency}\label{28-h4-and-relative-efficiency}}
 
 \textbf{Against quasi-Monte Carlo} (n = 7, both against Black-Scholes),
 amplitude estimation\textquotesingle s RMSE is a median \textbf{18 to 20
-times larger}, at every budget. Amplitude estimation has the lower RMSE
-in only 4 to 9 of the 1,793 scenarios, depending on the budget. The
-ratio is roughly constant across budgets: both methods converge at about
-the same rate, close to 1/N, as stated in advance. The constant favours
-quasi-Monte Carlo, because amplitude estimation carries the
-discretisation bias and the payoff scaling, and quasi-Monte Carlo
-carries neither.
+times larger}, at every budget {[}\texttt{H4\_ratio\_qae\_over\_qmc}{]}.
+Amplitude estimation has the lower RMSE in only 4 to 9 of the 1,793
+scenarios, depending on the budget {[}\texttt{H4\_qae\_wins}{]}.
+
+\begin{itemize}
+\tightlist
+\item
+  The ratio is roughly constant across budgets, so both methods converge
+  at about the same rate, as stated in advance.
+\item
+  The constant favours quasi-Monte Carlo, because amplitude estimation
+  carries the discretisation bias and the payoff scaling, and
+  quasi-Monte Carlo carries neither.
+\end{itemize}
 
 \includegraphics{img/qae_vs_qmc.png}
 
 \textbf{Relative efficiency at the largest budget}, E = N\_comparator(ε)
-/ N\_QAE(ε):
+/ N\_QAE(ε) {[}\texttt{relative\_efficiency\_largest\_budget}{]}:
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2221}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1093}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1497}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1446}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.3543}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2459}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1211}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1658}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.1602}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 8\tabcolsep) * \real{0.2871}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Comparison
@@ -900,31 +1061,32 @@ Quartiles
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 E \textgreater{} 1
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Note
+Comparator\textquotesingle s N(ε) outside the budgets run
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
 vs Monte Carlo on the grid, n = 5 & 11.2 & 6.7 -- 18.1 & 1,759 of 1,793
-& N\_comparator extrapolated beyond 26,200 calls in those 1,759 \\
-vs Monte Carlo on the grid, n = 7 & 10.5 & 6.0 -- 17.3 & 1,729 of 1,793
-& extrapolated in 1,729 \\
+& above 26,200 calls in 1,759; below 1,800 in 2 \\
+vs Monte Carlo on the grid, n = 7 & 10.4 & 6.0 -- 17.3 & 1,732 of 1,793
+& above 26,200 calls in 1,732 \\
 vs quasi-Monte Carlo, n = 7 & 0.028 & 0.014 -- 0.050 & 2 of 1,793 &
-N\_comparator extrapolated \emph{below} the smallest budget (1,024
-points) in most scenarios \\
+below 1,024 points in 1,155; above in 3 \\
 \end{longtable}
 
 At the largest budget, plain Monte Carlo would need about \textbf{11
 times more calls} than amplitude estimation to reach the same error on
 the grid. Quasi-Monte Carlo would need about \textbf{36 times fewer}.
-Both figures rely on extrapolating the fitted lines beyond the budgets
-actually run, so they are indicative.
+
+Both figures come from extrapolating each comparator\textquotesingle s
+fitted line outside the budgets actually run, in almost every scenario.
+They are indicative, not measured.
 
 \hypertarget{29-mode-errors-of-mlae}{%
 \subsubsection{2.9 Mode errors of MLAE}\label{29-mode-errors-of-mlae}}
 
-Mode errors (section 1.5) are \textbf{rare}.
+\textbf{Mode errors are rare} {[}\texttt{mode\_errors}{]}:
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3809}}
@@ -945,36 +1107,56 @@ Depth 8
 \bottomrule\noalign{}
 \endlastfoot
 Share of draws affected & 0\% & 0.0007\% & 0.009\% \\
-Configurations with at least one & 0 of 8,965 & 3 & 41 \\
+Configurations with at least one & 0 of 8,965 & 3 & 40 \\
 \end{longtable}
 
-The scenario that revealed them (section 1.9) is one of these 41: 1 of
-its 50 draws. Rare as they are, a single one can dominate an RMSE: they
-account for 38 of the 193 H1 losses.
+The 0\% at depths 4 to 6 is partly a consequence of the definition: the
+threshold is wider for short ladders (Document 1, section 6).
+
+\textbf{They come from the method, not the optimiser.} For all 43
+configurations with a mode error, the draws were regenerated from their
+seeds and compared with a 400,001-point grid. The estimator agrees with
+the fine grid in all 2,150 draws
+{[}\texttt{checks.json:\ mlae\_global\_maximum}{]}.
+
+\textbf{A single one can still dominate an RMSE.} Mode errors are
+present in 37 of the 191 H1 losses. The scenario that revealed them
+(section 1.9) is among the 40 at depth 8.
 
 \hypertarget{210-conclusions}{%
 \subsubsection{2.10 Conclusions}\label{210-conclusions}}
+
+These conclusions hold \textbf{if the restatement of H0-a in 2.4 is
+accepted}. Without it, the plan gives no verdict on H1 to H4.
 
 \begin{enumerate}
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
   \textbf{The circuit does what it claims, up to numerical precision.}
-  It reproduces the grid price to a relative 3.4e-9. The Grover identity
-  behind the fast simulation holds to 6.1e-10. The only failure, H0-a,
-  comes from an absolute tolerance that was too tight for 7-qubit
-  synthesis, not from an error in the circuit (2.4).
+
+  \begin{itemize}
+  \tightlist
+  \item
+    It reproduces the grid price to a relative 3.4e-9.
+  \item
+    The Grover identity behind the fast simulation holds to 6.1e-10, up
+    to the largest power used.
+  \item
+    H0-a failed as written because its absolute tolerance was too tight
+    for 7-qubit synthesis, not because of an error in the circuit.
+  \end{itemize}
 \item
-  \textbf{The textbook claim is confirmed on the like-for-like
-  comparison.} With the same number of calls on the same grid, amplitude
-  estimation beats plain Monte Carlo in 97.8\% of cases. On the grid,
-  plain Monte Carlo needs a median 11 times more calls to match it at
-  the largest budget.
+  \textbf{Amplitude estimation beats plain Monte Carlo at equal calls on
+  the same grid, at the budgets tested.} It does so in 97.9\% of cases
+  at 26,200 calls. This is the advantage measured. The quadratic rate
+  behind the textbook claim is seen in the bulk (median slope −0.98) but
+  \textbf{not certified} at the planned threshold (conclusion 3). The
+  figure of 11 times fewer calls is extrapolated.
 \item
-  \textbf{The 1/N rate holds in the bulk, but the pre-registered
-  threshold is missed narrowly.} The median slope is −0.98, but 11\% of
-  scenarios have a slope above −0.8, against 10\% allowed. With the
-  planned setting, the rate cannot be certified scenario by scenario.
+  \textbf{The 1/N rate is not certified scenario by scenario.} 11\% of
+  scenarios have a fitted slope above −0.8, against 10\% allowed, and
+  they are not confined to one region.
 \item
   \textbf{Against Black-Scholes, the kit is accurate to 1\% for
   maturities up to 1 year} with 7 price qubits. Beyond that, both the
@@ -990,13 +1172,14 @@ account for 38 of the 193 H1 losses.
 \subsubsection{2.11 Overall verdict
 (developer)}\label{211-overall-verdict-developer}}
 
-\textbf{Fit for its stated purpose, with limits.} The purpose is a
-reproducible, documented test bench for amplitude estimation on the
-simplest option.
+The stated purpose is a reproducible, documented test bench for
+amplitude estimation on the simplest option. \textbf{For that purpose,
+the kit is fit, with limits, conditional on accepting the restatement of
+H0-a.}
 
 \begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4742}}
-  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5058}}@{}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.4472}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.5328}}@{}}
 \toprule\noalign{}
 \begin{minipage}[b]{\linewidth}\raggedright
 Point
@@ -1007,25 +1190,31 @@ Status
 \endhead
 \bottomrule\noalign{}
 \endlastfoot
-Correctness of the circuit and the simulation & Established, subject to
-accepting the relative restatement of H0-a \\
-Advantage in calls over plain Monte Carlo on the same grid &
-Established \\
-Advantage scenario by scenario at the planned threshold & Not
+Correctness of the circuit and the simulation & Established up to
+numerical precision; the restatement of H0-a is needed for the
+plan\textquotesingle s criterion to pass \\
+Fewer calls than plain Monte Carlo on the same grid, at the budgets
+tested & Established (H1), conditional on H0-a \\
+The 1/N rate, scenario by scenario at the planned threshold & Not
 established (H2-a) \\
-Accuracy against Black-Scholes & Up to 1 year only \\
+Accuracy against Black-Scholes & Up to 1 year only (H3), conditional on
+H0-a \\
 Advantage over quasi-Monte Carlo & None, as expected \\
 \end{longtable}
 
 \textbf{For the independent review and the sign-off to decide:}
 
-\begin{itemize}
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  whether to accept the restatement of H0-a;
+  Accept or reject the restatement of H0-a.
 \item
-  whether the H2-a result calls for a follow-up campaign: a longer
-  ladder, more draws, or both.
-\end{itemize}
+  Accept or reject the developer\textquotesingle s reading of the limits
+  rule for H2-a and H3.
+\item
+  Decide whether H2-a calls for a follow-up campaign: a longer ladder,
+  more draws, or both.
+\end{enumerate}
 
 \end{document}
