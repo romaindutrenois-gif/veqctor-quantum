@@ -1,6 +1,6 @@
 # Document 3: Tests
 
-**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) frozen by its commit before the campaign; Part 2 (results) to be written after the campaign. Sign-off of the whole kit by Romain Dutrenois at the end, after an independent review.
+**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) frozen by its commit before the campaign (422ebfb); Part 2 (results) written after the campaign. Sign-off of the whole kit by Romain Dutrenois at the end, after an independent review.
 
 Part 1 is pre-registered: it is written and committed **before** the campaign runs, and the commit date is the proof. Any change made after that commit is recorded in the deviations table (section 1.9), with its reason.
 
@@ -121,6 +121,7 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 
 | Date | Deviation | Reason | Approved by |
 | --- | --- | --- | --- |
+| 2026-11-10 | **Proposed, not applied: H0-a restated as a relative tolerance**, \|circuit − grid\| ≤ 1e-8 × grid price. Post hoc: made after seeing that H0-a fails as written (Part 2, section 2.4). | The absolute tolerance of 1e-9 did not allow for the floating-point error of Qiskit's state-preparation synthesis at 6 and 7 qubits (relative error up to 3.4e-9) | Pending: independent review and sign-off |
 | 2026-11-10 | **First campaign run discarded, unread.** It ran on a stale installed copy of the package (20 draws, without the measures added above). Detected when the analysis script stopped on the missing columns, before computing any statistic. The run was moved aside without being analysed; the package was reinstalled in editable mode; the analysis script (`docs/analyse.py`) was committed before the rerun; each run now writes `results/run_info.json` (git commit, draws, versions) next to its results. | Execution error, recorded for transparency | Developer (Veqctor) |
 | 2026-11-10 | **Draws raised from 20 to 50; median absolute error and share of mode errors added to the stored measures (1.5) and reported analyses (1.8).** Criteria unchanged. | While writing the user guide, one scenario was recomputed (scenario 1000: at the money, 5Y, vol 60%, rate 0%; n = 5, largest budget). One of its 20 draws had locked onto a wrong peak of the likelihood (θ off by about π/129), giving a price error of 33 on a price of 49; the RMSE over 20 draws was 7.4, against 0.5 over 200 draws. This is a known property of maximum-likelihood amplitude estimation: errors are mostly small, with rare large ones. With 20 draws the RMSE would depend on whether such a draw is in the sample. The method itself is left unchanged (the published one); the measurement is made more stable and the rare errors are counted rather than hidden. No other scenario was inspected. | Developer (Veqctor) |
 | 2026-11-03 | Terminology: "superiority" replaced by **relative efficiency** and **query complexity** (sections 1.1, 1.2), and the distribution of E added to the reported analyses (1.8). Criteria and thresholds unchanged. Made before any run. | Standard statistical terms, measurable per scenario | Romain Dutrenois |
@@ -145,4 +146,154 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 
 ## Part 2: Results
 
-*To be written after the campaign, against the criteria above.*
+Every number below comes from `results/summary.json`, produced by `docs/analyse.py` from `results/campaign.csv` and `results/verification.json`. All four files are in the repository.
+
+### 2.1 Execution record
+
+| Item | Value |
+| --- | --- |
+| Code | commit 13af41d, no uncommitted changes (`results/run_info.json`) |
+| Plan | frozen at commit 422ebfb, before the run |
+| Environment | Python 3.13.17, Qiskit 2.6.1, NumPy 2.5.4, SciPy 1.18.1, Linux, 2 cores |
+| Run | 2026-11-10: verification (100 checks), then 1,848 scenarios × 5 qubit counts × 5 budgets × 50 draws |
+| Rows | 46,200 (complete) |
+| Wall time | about 6 minutes for the verification and 17 minutes for the campaign |
+
+**Incidents during execution:**
+
+1. **A first campaign run was discarded unread.** It ran on a stale copy of the package (section 1.9).
+2. **The analysis script had a bug** in the relative-efficiency calculation: the fitted intercept was used on the wrong scale. The script crashed, the cause was fixed, and the analysis was rerun. The fix touches only the relative efficiency (section 1.8). No acceptance criterion depends on it.
+
+### 2.2 Scope
+
+| Category | Count | Treatment |
+| --- | --- | --- |
+| Scenarios with a Black-Scholes price below 0.01 | 55 (30 at 1W, 19 at 2W, 6 at 1M) | Excluded from H1 to H4, as planned |
+| (scenario, n) pairs worthless on the grid | 147 (42 at n = 3, falling to 24 at n = 7) | Excluded, as planned; all of them are also negligible-price scenarios |
+| **In-scope (scenario, n) pairs** | **8,965** | 1,793 scenarios at each n |
+
+### 2.3 Verdicts
+
+| # | Criterion (section 1.7) | Result | Verdict |
+| --- | --- | --- | --- |
+| H0-a | Circuit price against grid price ≤ 1e-9 in 100% of cases | 89.4% (41,310 of 46,200 rows); largest difference 8.4e-9 | **Not validated** as written; see 2.4 |
+| H0-b | Full simulation of A Qᵏ against sin²((2k + 1)θ) ≤ 1e-9 in 100% | 100% (100 of 100); largest difference 6.1e-10 | **Validated** |
+| H1 | At 26,200 calls, RMSE of amplitude estimation < Monte Carlo on the grid, ≥ 95% | 97.8% (8,772 of 8,965) | **Validated** (conditional on 2.4) |
+| H2-a | Slope ≤ −0.8 for amplitude estimation, n = 5, in ≥ 90% | 89.0% (1,595 of 1,793); median slope −0.98 | **Not validated** (conditional on 2.4) |
+| H2-b | Slope between −0.65 and −0.35 for Monte Carlo on the grid, n = 5, in ≥ 90% | 99.8% (1,790 of 1,793); median slope −0.50 | **Validated** (conditional on 2.4) |
+| H3 | n = 7, largest budget: RMSE against Black-Scholes ≤ max(1% of the price, 0.01), in ≥ 95% | 88.9% overall; 99.0% for maturities up to 1 year | **Validated with limits**: maturities up to 1 year (conditional on 2.4) |
+| H4 | QAE against QMC, descriptive | Median RMSE ratio 18 to 20, at every budget | As expected: no gain over QMC |
+
+### 2.4 H0-a: what failed, and what it means
+
+**The facts.**
+- 978 of the 9,240 (scenario, n) circuits differ from the grid price by more than 1e-9. Every one has 6 or 7 price qubits (826 at n = 7, 152 at n = 6).
+- The largest absolute difference is 8.4e-9. The largest **relative** difference, over all circuits, is 3.4e-9.
+
+**The cause.** The deviation comes from Qiskit's synthesis of the state preparation, not from the logic of the circuit.
+- Checked on the 5-year, 60%-volatility at-the-money option: the probabilities loaded by `StatePreparation` differ from the target p_i by at most 1.3e-13 at n = 5, 3.1e-11 at n = 6 and 6.4e-10 at n = 7. Their sum deviates from 1 by 2.5e-12 at n = 7.
+- The error grows with the size of the synthesised circuit, as expected from floating-point accumulation over thousands of gates (Document 1, section 8).
+- The payoff rotations and the Grover operator are not involved: H0-b, which simulates the full Grover iterations, passes at 6.1e-10.
+
+**Why the criterion failed.** The criterion was set as an *absolute* 1e-9 on prices that reach a few hundred, and on circuits with up to 12,000 gates. A relative tolerance would have expressed the intent, "the circuit computes the grid price up to numerical precision", correctly. This is a specification error in the plan, made before the run.
+
+**Effect on the other results: none in practice.** A relative error of 3.4e-9 is about five orders of magnitude below the smallest statistical error in the campaign: the smallest relative RMSE of amplitude estimation is 3.6e-4.
+
+**What the plan says.** "Failure of H0 stops the campaign: nothing else is interpreted." Applied literally, H1 to H4 have no verdict.
+
+**Proposed deviation (post hoc, not applied).** Restate H0-a as a relative tolerance: |circuit − grid| ≤ 1e-8 × grid price. Under it, H0-a passes in 100% of cases.
+- The proposal is made **after** seeing the results, so it is not part of the pre-registered plan.
+- It is left to the independent review and to the sign-off to accept or reject.
+- The verdicts on H1 to H4 above are given **conditionally on its acceptance**, and marked as such.
+
+### 2.5 H1: amplitude estimation against Monte Carlo on the same grid
+
+At the largest budget, amplitude estimation has the lower RMSE in **97.8%** of in-scope (scenario, n) pairs. On the median absolute error, the share is 99.98% (the sensitivity check of section 1.8).
+
+![Share of wins by maturity and volatility, all n](img/h1_heatmap.png)
+
+**Where it loses.**
+- **Long maturity and high volatility.** Of the 193 losses, 109 are at 5Y and 45 at 3Y, and 72 at 80% volatility. Losses also grow with n: 14 at n = 3, 64 at n = 7.
+- **The cause is the payoff scaling** (Document 1, section 11). The price is read as e^(−rT) × largest grid payoff × amplitude. On a wide grid the largest payoff is many times the price, the amplitude is small, and its error is magnified. Monte Carlo on the grid has no such factor.
+- **Mode errors** are present in 38 of the 193 losses.
+
+**Crossing budget** (n = 5): the smallest budget at which amplitude estimation beats Monte Carlo on the grid.
+
+| Budget (calls) | 1,800 | 3,500 | 6,800 | 13,300 | 26,200 | Never |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scenarios | 764 | 708 | 250 | 55 | 14 | 2 |
+
+In 82% of scenarios, amplitude estimation is ahead from 3,500 calls.
+
+### 2.6 H2: convergence rate
+
+![Error against calls, n = 5](img/error_vs_calls.png)
+
+![Distribution of the fitted slopes, n = 5](img/slopes.png)
+
+**Monte Carlo on the grid (H2-b) behaves exactly as theory predicts.** The median slope is −0.50, with quartiles −0.53 and −0.47, and 99.8% of scenarios are in the band. This confirms the benchmark and the fitting procedure.
+
+**Amplitude estimation (H2-a) has a median slope of −0.98**, with quartiles −1.04 and −0.90: the 1/N rate in the bulk of the scenarios. But 11.0% of scenarios have a slope above −0.8, against the 10% the criterion allows.
+- **The failures are spread across the grid.** By maturity they range from 15 to 43, by volatility from 20 to 39. Limiting to maturities up to 1 year raises the share only to 91.1%. There is no identifiable region, so the verdict is *Not validated*, not *Validated with limits*.
+- **The likely reasons are noise and the low budgets.** Each slope is fitted on 5 RMSEs, each estimated from 50 draws (a relative standard error of about 10% each). Over that range, the noise moves the slope by several hundredths. At the low budgets (depth 4: powers 0, 1 and 2 only), MLAE is not yet in its asymptotic regime, and the slope over 1,800 to 26,200 calls mixes the two regimes. A longer ladder or more draws would sharpen the estimate. Neither was planned, and neither has been tried.
+
+### 2.7 H3: accuracy against Black-Scholes, n = 7
+
+Against Black-Scholes, the RMSE is within max(1% of the price, 0.01) in **88.9%** of scenarios overall, and **99.0%** of the 1,331 scenarios with maturity up to 1 year. Failures are concentrated where the grid is widest: 69 at 3Y and 117 at 5Y out of 199, and they grow with volatility (70 at 80%).
+
+In 67 of the 199 failures, the **discretisation bias alone** exceeds the tolerance: no amount of sampling can bring those scenarios within 1% with 128 grid points. The rest come from the payoff scaling described in 2.5.
+
+![Discretisation bias against the number of price qubits](img/discretisation_bias.png)
+
+The median relative discretisation bias falls from 2.9% at n = 3 to 0.11% at n = 7.
+
+### 2.8 H4 and relative efficiency
+
+**Against quasi-Monte Carlo** (n = 7, both against Black-Scholes), amplitude estimation's RMSE is a median **18 to 20 times larger**, at every budget. Amplitude estimation has the lower RMSE in only 4 to 9 of the 1,793 scenarios, depending on the budget. The ratio is roughly constant across budgets: both methods converge at about the same rate, close to 1/N, as stated in advance. The constant favours quasi-Monte Carlo, because amplitude estimation carries the discretisation bias and the payoff scaling, and quasi-Monte Carlo carries neither.
+
+![RMSE ratio, amplitude estimation over quasi-Monte Carlo](img/qae_vs_qmc.png)
+
+**Relative efficiency at the largest budget**, E = N_comparator(ε) / N_QAE(ε):
+
+| Comparison | Median E | Quartiles | E > 1 | Note |
+| --- | --- | --- | --- | --- |
+| vs Monte Carlo on the grid, n = 5 | 11.2 | 6.7 – 18.1 | 1,759 of 1,793 | N_comparator extrapolated beyond 26,200 calls in those 1,759 |
+| vs Monte Carlo on the grid, n = 7 | 10.5 | 6.0 – 17.3 | 1,729 of 1,793 | extrapolated in 1,729 |
+| vs quasi-Monte Carlo, n = 7 | 0.028 | 0.014 – 0.050 | 2 of 1,793 | N_comparator extrapolated *below* the smallest budget (1,024 points) in most scenarios |
+
+At the largest budget, plain Monte Carlo would need about **11 times more calls** than amplitude estimation to reach the same error on the grid. Quasi-Monte Carlo would need about **36 times fewer**. Both figures rely on extrapolating the fitted lines beyond the budgets actually run, so they are indicative.
+
+### 2.9 Mode errors of MLAE
+
+Mode errors (section 1.5) are **rare**.
+
+| | Depths 4 to 6 | Depth 7 | Depth 8 |
+| --- | --- | --- | --- |
+| Share of draws affected | 0% | 0.0007% | 0.009% |
+| Configurations with at least one | 0 of 8,965 | 3 | 41 |
+
+The scenario that revealed them (section 1.9) is one of these 41: 1 of its 50 draws. Rare as they are, a single one can dominate an RMSE: they account for 38 of the 193 H1 losses.
+
+### 2.10 Conclusions
+
+1. **The circuit does what it claims, up to numerical precision.** It reproduces the grid price to a relative 3.4e-9. The Grover identity behind the fast simulation holds to 6.1e-10. The only failure, H0-a, comes from an absolute tolerance that was too tight for 7-qubit synthesis, not from an error in the circuit (2.4).
+2. **The textbook claim is confirmed on the like-for-like comparison.** With the same number of calls on the same grid, amplitude estimation beats plain Monte Carlo in 97.8% of cases. On the grid, plain Monte Carlo needs a median 11 times more calls to match it at the largest budget.
+3. **The 1/N rate holds in the bulk, but the pre-registered threshold is missed narrowly.** The median slope is −0.98, but 11% of scenarios have a slope above −0.8, against 10% allowed. With the planned setting, the rate cannot be certified scenario by scenario.
+4. **Against Black-Scholes, the kit is accurate to 1% for maturities up to 1 year** with 7 price qubits. Beyond that, both the discretisation and the payoff scaling degrade it.
+5. **There is no gain over the best classical sampler.** Quasi-Monte Carlo is about 20 times more accurate at the same budget on this one-dimensional problem. That was expected, and it is why a European call is a test bench, not a use case.
+
+### 2.11 Overall verdict (developer)
+
+**Fit for its stated purpose, with limits.** The purpose is a reproducible, documented test bench for amplitude estimation on the simplest option.
+
+| Point | Status |
+| --- | --- |
+| Correctness of the circuit and the simulation | Established, subject to accepting the relative restatement of H0-a |
+| Advantage in calls over plain Monte Carlo on the same grid | Established |
+| Advantage scenario by scenario at the planned threshold | Not established (H2-a) |
+| Accuracy against Black-Scholes | Up to 1 year only |
+| Advantage over quasi-Monte Carlo | None, as expected |
+
+**For the independent review and the sign-off to decide:**
+- whether to accept the restatement of H0-a;
+- whether the H2-a result calls for a follow-up campaign: a longer ladder, more draws, or both.

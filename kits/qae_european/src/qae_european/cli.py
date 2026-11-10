@@ -2,6 +2,12 @@
 import argparse, csv, json, warnings
 
 
+def _plain(estimate):
+    """Estimate as a dict for valid JSON: an undefined standard error (NaN) becomes null."""
+    import math
+    return {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in estimate.__dict__.items()}
+
+
 def _write_run_info(path):
     """Record which code and environment produced the results, next to them."""
     import os, platform, subprocess, sys, datetime
@@ -51,8 +57,8 @@ def main(argv=None):
         print(json.dumps({
             "black_scholes": BlackScholes.call(o), "grid_price": g.price(), "circuit_exact": q.price_exact(),
             "amplitude_estimation": float(MaximumLikelihoodAE(lad).estimate_prices(q, rng)[0]), "calls": lad.calls,
-            "monte_carlo": MonteCarlo().price(o, lad.calls, rng).__dict__,
-            "quasi_monte_carlo": QuasiMonteCarlo().price(o, lad.calls, rng).__dict__}, indent=2))
+            "monte_carlo": _plain(MonteCarlo().price(o, lad.calls, rng)),
+            "quasi_monte_carlo": _plain(QuasiMonteCarlo().price(o, lad.calls, rng))}, indent=2))
     elif a.cmd == "verify":
         from .campaign import verify_circuits
         rows = verify_circuits(a.scenarios)

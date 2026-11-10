@@ -1,0 +1,702 @@
+[
+ {
+  "scenario": 167,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 4.8183679268731794e-14,
+  "grid_vs_circuit": 2.842170943040401e-14
+ },
+ {
+  "scenario": 167,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.9790280525455728e-12,
+  "grid_vs_circuit": 1.2931877790833823e-12
+ },
+ {
+  "scenario": 167,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 5.133116154354411e-12,
+  "grid_vs_circuit": 1.5731416169728618e-11
+ },
+ {
+  "scenario": 167,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 5.973799233061072e-11,
+  "grid_vs_circuit": 8.421778829870163e-10
+ },
+ {
+  "scenario": 167,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.1675882483075384e-10,
+  "grid_vs_circuit": 4.97649921271659e-10
+ },
+ {
+  "scenario": 269,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 2.0250467969162855e-13,
+  "grid_vs_circuit": 6.039613253960852e-14
+ },
+ {
+  "scenario": 269,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.6256553315183737e-12,
+  "grid_vs_circuit": 1.0622613899613498e-12
+ },
+ {
+  "scenario": 269,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 2.6442181777497353e-12,
+  "grid_vs_circuit": 4.401812248033821e-12
+ },
+ {
+  "scenario": 269,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 6.271061447904458e-11,
+  "grid_vs_circuit": 6.500506799511641e-10
+ },
+ {
+  "scenario": 269,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.6481449538474635e-10,
+  "grid_vs_circuit": 1.7472636670845532e-09
+ },
+ {
+  "scenario": 290,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 7.405187574249794e-14,
+  "grid_vs_circuit": 1.4210854715202004e-14
+ },
+ {
+  "scenario": 290,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.2807090377673376e-13,
+  "grid_vs_circuit": 1.2860823517257813e-12
+ },
+ {
+  "scenario": 290,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 6.68565203199023e-12,
+  "grid_vs_circuit": 1.5916157281026244e-12
+ },
+ {
+  "scenario": 290,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 7.842348992426196e-11,
+  "grid_vs_circuit": 1.3395435871643713e-09
+ },
+ {
+  "scenario": 290,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.8878454355331087e-11,
+  "grid_vs_circuit": 1.8336479001845873e-09
+ },
+ {
+  "scenario": 348,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 7.693845560652335e-14,
+  "grid_vs_circuit": 1.4210854715202004e-14
+ },
+ {
+  "scenario": 348,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 4.341971227006525e-12,
+  "grid_vs_circuit": 6.181721801112872e-13
+ },
+ {
+  "scenario": 348,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 4.206635040304718e-12,
+  "grid_vs_circuit": 1.1866063687193673e-12
+ },
+ {
+  "scenario": 348,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 1.1917800080141205e-11,
+  "grid_vs_circuit": 9.188738658849616e-11
+ },
+ {
+  "scenario": 348,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.904854052270366e-11,
+  "grid_vs_circuit": 1.8528290013364312e-10
+ },
+ {
+  "scenario": 359,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 8.859579736508749e-14,
+  "grid_vs_circuit": 1.9539925233402755e-14
+ },
+ {
+  "scenario": 359,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 6.619149672815183e-13,
+  "grid_vs_circuit": 8.402167850363185e-13
+ },
+ {
+  "scenario": 359,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.237432378786707e-11,
+  "grid_vs_circuit": 1.5489831639570184e-12
+ },
+ {
+  "scenario": 359,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 1.226421741939987e-11,
+  "grid_vs_circuit": 3.1322500149144616e-11
+ },
+ {
+  "scenario": 359,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.528406650714743e-11,
+  "grid_vs_circuit": 1.0344436418563419e-10
+ },
+ {
+  "scenario": 536,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.5087930904655877e-13,
+  "grid_vs_circuit": 2.1316282072803006e-14
+ },
+ {
+  "scenario": 536,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 2.634892304342884e-12,
+  "grid_vs_circuit": 4.1033842990145786e-13
+ },
+ {
+  "scenario": 536,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.1404210908949608e-11,
+  "grid_vs_circuit": 9.059419880941277e-13
+ },
+ {
+  "scenario": 536,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 3.765687761614345e-11,
+  "grid_vs_circuit": 1.2776268931702361e-10
+ },
+ {
+  "scenario": 536,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.837718948711654e-11,
+  "grid_vs_circuit": 1.206093003247588e-10
+ },
+ {
+  "scenario": 675,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.9317880628477724e-14,
+  "grid_vs_circuit": 4.440892098500626e-15
+ },
+ {
+  "scenario": 675,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 2.6982860390489805e-12,
+  "grid_vs_circuit": 1.8207657603852567e-13
+ },
+ {
+  "scenario": 675,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 9.312994819765663e-12,
+  "grid_vs_circuit": 4.5208281562736374e-13
+ },
+ {
+  "scenario": 675,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 3.824829342136127e-11,
+  "grid_vs_circuit": 3.007549764788564e-11
+ },
+ {
+  "scenario": 675,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.9784029969827088e-10,
+  "grid_vs_circuit": 1.2609735478008588e-10
+ },
+ {
+  "scenario": 694,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 2.2459811788166917e-13,
+  "grid_vs_circuit": 1.2434497875801753e-14
+ },
+ {
+  "scenario": 694,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 5.615841125461429e-12,
+  "grid_vs_circuit": 1.900701818158268e-13
+ },
+ {
+  "scenario": 694,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 4.579669976578771e-12,
+  "grid_vs_circuit": 3.4727776210274897e-13
+ },
+ {
+  "scenario": 694,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 5.0014326014036214e-11,
+  "grid_vs_circuit": 3.9820591268835415e-11
+ },
+ {
+  "scenario": 694,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.1504497354763998e-10,
+  "grid_vs_circuit": 8.348433055971327e-11
+ },
+ {
+  "scenario": 776,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 2.0461410343841635e-13,
+  "grid_vs_circuit": 3.907985046680551e-14
+ },
+ {
+  "scenario": 776,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.698041872723934e-12,
+  "grid_vs_circuit": 9.414691248821327e-13
+ },
+ {
+  "scenario": 776,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.0857981180834031e-13,
+  "grid_vs_circuit": 5.435651928564766e-13
+ },
+ {
+  "scenario": 776,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 4.411437881657321e-11,
+  "grid_vs_circuit": 6.959304243991937e-10
+ },
+ {
+  "scenario": 776,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.4840351997568177e-11,
+  "grid_vs_circuit": 4.403748476988767e-09
+ },
+ {
+  "scenario": 845,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 5.2735593669694936e-15,
+  "grid_vs_circuit": 1.3322676295501878e-15
+ },
+ {
+  "scenario": 845,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 2.571387547334325e-12,
+  "grid_vs_circuit": 6.106226635438361e-14
+ },
+ {
+  "scenario": 845,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 5.075828646283753e-12,
+  "grid_vs_circuit": 1.7186252421197423e-13
+ },
+ {
+  "scenario": 845,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 9.611478279936136e-11,
+  "grid_vs_circuit": 2.8664626228191992e-11
+ },
+ {
+  "scenario": 845,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 1.6415879766640273e-10,
+  "grid_vs_circuit": 2.6361135496699717e-11
+ },
+ {
+  "scenario": 1059,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.2545520178264269e-14,
+  "grid_vs_circuit": 1.7763568394002505e-15
+ },
+ {
+  "scenario": 1059,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.1221024109886457e-12,
+  "grid_vs_circuit": 1.389999226830696e-13
+ },
+ {
+  "scenario": 1059,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.1430079105423374e-11,
+  "grid_vs_circuit": 8.446576771348191e-13
+ },
+ {
+  "scenario": 1059,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 8.213763003084296e-12,
+  "grid_vs_circuit": 1.2044232278185518e-10
+ },
+ {
+  "scenario": 1059,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 9.851264248794678e-11,
+  "grid_vs_circuit": 6.542286712374334e-10
+ },
+ {
+  "scenario": 1204,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 6.350475700855895e-14,
+  "grid_vs_circuit": 1.3322676295501878e-15
+ },
+ {
+  "scenario": 1204,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.218980637598179e-12,
+  "grid_vs_circuit": 7.93809462606987e-15
+ },
+ {
+  "scenario": 1204,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 4.119482532871643e-12,
+  "grid_vs_circuit": 6.716849298982197e-15
+ },
+ {
+  "scenario": 1204,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 1.90958138190922e-10,
+  "grid_vs_circuit": 2.2248813902336906e-11
+ },
+ {
+  "scenario": 1204,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.608135929449418e-10,
+  "grid_vs_circuit": 3.3549829581147605e-11
+ },
+ {
+  "scenario": 1240,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 5.950795411990839e-14,
+  "grid_vs_circuit": 3.3306690738754696e-16
+ },
+ {
+  "scenario": 1240,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.6477930131486573e-12,
+  "grid_vs_circuit": 2.098321516541546e-14
+ },
+ {
+  "scenario": 1240,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 3.219202682203104e-12,
+  "grid_vs_circuit": 1.2168044349891716e-13
+ },
+ {
+  "scenario": 1240,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 5.880096409782709e-11,
+  "grid_vs_circuit": 7.513323296848284e-12
+ },
+ {
+  "scenario": 1240,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 8.313050248176523e-11,
+  "grid_vs_circuit": 2.0030344050070426e-10
+ },
+ {
+  "scenario": 1480,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.5332179970073412e-13,
+  "grid_vs_circuit": 1.0658141036401503e-14
+ },
+ {
+  "scenario": 1480,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.5571545708990016e-12,
+  "grid_vs_circuit": 6.679101716144942e-13
+ },
+ {
+  "scenario": 1480,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 6.410094677278266e-12,
+  "grid_vs_circuit": 9.890754881780595e-12
+ },
+ {
+  "scenario": 1480,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 9.370237918915336e-11,
+  "grid_vs_circuit": 2.809201760101132e-10
+ },
+ {
+  "scenario": 1480,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 3.5677438781078763e-10,
+  "grid_vs_circuit": 5.271967751241391e-09
+ },
+ {
+  "scenario": 1580,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 2.2093438190040615e-14,
+  "grid_vs_circuit": 3.3306690738754696e-16
+ },
+ {
+  "scenario": 1580,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.3424816813767393e-12,
+  "grid_vs_circuit": 1.2545520178264269e-14
+ },
+ {
+  "scenario": 1580,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 2.3665513992909837e-12,
+  "grid_vs_circuit": 1.1324274851176597e-14
+ },
+ {
+  "scenario": 1580,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 2.696501910648408e-10,
+  "grid_vs_circuit": 5.55725465645196e-11
+ },
+ {
+  "scenario": 1580,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 6.141145370008871e-10,
+  "grid_vs_circuit": 2.538168564214516e-10
+ },
+ {
+  "scenario": 1587,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.5765166949677223e-14,
+  "grid_vs_circuit": 1.509903313490213e-14
+ },
+ {
+  "scenario": 1587,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.7346124536743446e-12,
+  "grid_vs_circuit": 1.3589129821411916e-13
+ },
+ {
+  "scenario": 1587,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 6.049605261182478e-13,
+  "grid_vs_circuit": 1.1102230246251565e-13
+ },
+ {
+  "scenario": 1587,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 9.826839342252924e-11,
+  "grid_vs_circuit": 4.707612077936574e-11
+ },
+ {
+  "scenario": 1587,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 3.605316045707241e-11,
+  "grid_vs_circuit": 8.376863647185928e-10
+ },
+ {
+  "scenario": 1663,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.301736496372996e-14,
+  "grid_vs_circuit": 0.0
+ },
+ {
+  "scenario": 1663,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 3.1982194670376884e-12,
+  "grid_vs_circuit": 5.186961971048731e-13
+ },
+ {
+  "scenario": 1663,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.8606227669693e-12,
+  "grid_vs_circuit": 3.2081004519568523e-12
+ },
+ {
+  "scenario": 1663,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 4.973488287873806e-11,
+  "grid_vs_circuit": 2.0797941147066012e-10
+ },
+ {
+  "scenario": 1663,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 5.364009236785705e-11,
+  "grid_vs_circuit": 3.617341093331561e-09
+ },
+ {
+  "scenario": 1719,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.1435297153639112e-14,
+  "grid_vs_circuit": 4.996003610813204e-16
+ },
+ {
+  "scenario": 1719,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 2.972733170736319e-12,
+  "grid_vs_circuit": 9.658940314238862e-15
+ },
+ {
+  "scenario": 1719,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 3.3022473644450656e-12,
+  "grid_vs_circuit": 2.4646951146678475e-14
+ },
+ {
+  "scenario": 1719,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 1.7967760612691563e-10,
+  "grid_vs_circuit": 4.005340503709931e-11
+ },
+ {
+  "scenario": 1719,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.0876667061742182e-10,
+  "grid_vs_circuit": 2.339696214548326e-10
+ },
+ {
+  "scenario": 1773,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 9.736655925962623e-14,
+  "grid_vs_circuit": 3.552713678800501e-15
+ },
+ {
+  "scenario": 1773,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.7352785874891197e-12,
+  "grid_vs_circuit": 1.2967404927621828e-13
+ },
+ {
+  "scenario": 1773,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 5.510703005029427e-12,
+  "grid_vs_circuit": 1.971756091734278e-13
+ },
+ {
+  "scenario": 1773,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 9.111378318493735e-11,
+  "grid_vs_circuit": 6.24540419380537e-11
+ },
+ {
+  "scenario": 1773,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 8.717415678205498e-11,
+  "grid_vs_circuit": 7.739338059309375e-10
+ },
+ {
+  "scenario": 1777,
+  "qubits": 3,
+  "max_power": 64,
+  "max_abs_diff": 1.2756462552943049e-13,
+  "grid_vs_circuit": 1.7763568394002505e-15
+ },
+ {
+  "scenario": 1777,
+  "qubits": 4,
+  "max_power": 64,
+  "max_abs_diff": 1.857458631349118e-12,
+  "grid_vs_circuit": 2.113864638886298e-13
+ },
+ {
+  "scenario": 1777,
+  "qubits": 5,
+  "max_power": 64,
+  "max_abs_diff": 1.507349800533575e-12,
+  "grid_vs_circuit": 2.1316282072803006e-13
+ },
+ {
+  "scenario": 1777,
+  "qubits": 6,
+  "max_power": 8,
+  "max_abs_diff": 9.906631071032734e-11,
+  "grid_vs_circuit": 8.617995206350315e-11
+ },
+ {
+  "scenario": 1777,
+  "qubits": 7,
+  "max_power": 8,
+  "max_abs_diff": 2.8161573073504087e-10,
+  "grid_vs_circuit": 1.2560494866420413e-09
+ }
+]

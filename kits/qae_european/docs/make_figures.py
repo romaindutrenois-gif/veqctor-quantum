@@ -1,11 +1,10 @@
-"""Figures for Documents 1 to 3.
+"""Figures for Document 1 (the figures of Document 3 are written by docs/analyse.py).
 
 Usage (from kits/qae_european, with the docs extra installed: pip install -e ".[docs]"):
-    python docs/make_figures.py circuit            # Document 1 figures (no campaign needed)
-    python docs/make_figures.py results            # Document 3 figures (needs results/campaign.csv)
+    python docs/make_figures.py
 Figures are written to docs/img/.
 """
-import csv, os, sys, warnings
+import os, warnings
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -86,15 +85,5 @@ def fig_circuit_size():
     return sizes
 
 
-def load_results(path=os.path.join(HERE, "..", "results", "campaign.csv")):
-    with open(path) as f:
-        return list(csv.DictReader(f))
-
-
 if __name__ == "__main__":
-    what = sys.argv[1] if len(sys.argv) > 1 else "circuit"
-    if what == "circuit":
-        fig_discretisation(); fig_circuit(); fig_pipeline(); fig_circuit_size()
-    elif what == "results":
-        import results_figures
-        results_figures.main(load_results(), save)
+    fig_discretisation(); fig_circuit(); fig_pipeline(); fig_circuit_size()

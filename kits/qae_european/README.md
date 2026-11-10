@@ -7,9 +7,11 @@ It is the simplest circuit we could build that still exercises the full amplitud
 | Document | Content | Status |
 | --- | --- | --- |
 | This guide | Install, run, reproduce, extend | Current |
-| [Document 1: Circuit](docs/circuit.md) | The circuit, environment, inputs, outputs, reproducibility | To be written |
-| [Document 2: Benchmarks](docs/benchmarks.md) | The comparators, why they were chosen, their code and parameters | To be written |
-| [Document 3: Tests](docs/tests.md) | Pre-registered test plan (Part 1), results and verdicts (Part 2) | Part 1 frozen; Part 2 to be written |
+| [Document 1: Circuit](docs/circuit.md) | The circuit, environment, inputs, outputs, reproducibility | Written |
+| [Document 2: Benchmarks](docs/benchmarks.md) | The comparators, why they were chosen, their code and parameters | Written |
+| [Document 3: Tests](docs/tests.md) | Pre-registered test plan (Part 1), results and verdicts (Part 2) | Written |
+
+The documents are also exported to Word, LaTeX and PDF in [`docs/export/`](docs/export/) (`python tools/export/export_docs.py kits/qae_european` from the repository root, after `python docs/build_benchmarks_doc.py`).
 
 Earlier exploratory documents are kept in `docs/archive/` for the record. They describe a previous version of the code and are superseded.
 
@@ -17,7 +19,7 @@ Earlier exploratory documents are kept in `docs/archive/` for the record. They d
 
 ## 1. Install
 
-Python 3.11 or later (tested on 3.13).
+Python 3.10 or later (tested on 3.13).
 
 **To reproduce the published results exactly**, use the frozen environment:
 
@@ -59,7 +61,7 @@ Output (frozen environment):
   "amplitude_estimation": 7.09878,
   "calls": 26200,
   "monte_carlo": {"value": 6.97917, "calls": 26200, "stderr": 0.07683},
-  "quasi_monte_carlo": {"value": 7.12759, "calls": 16384, "stderr": NaN}
+  "quasi_monte_carlo": {"value": 7.12759, "calls": 16384, "stderr": null}
 }
 ```
 
@@ -69,7 +71,7 @@ How to read it:
 - `grid_price` is the price on the discretised distribution (2^5 = 32 points). The gap to Black-Scholes is the **discretisation bias**; it shrinks as `--qubits` grows.
 - `circuit_exact` is the price read from the exact state of the circuit. It must equal `grid_price` to machine precision: this checks the circuit.
 - `amplitude_estimation` is one MLAE estimate using `calls` applications of the circuit A. Its error against `grid_price` is the **statistical error**.
-- `monte_carlo` uses the same number of calls (paths). Quasi-Monte Carlo uses the largest power of two not above it (a Sobol requirement). Its `stderr` is not defined for a single scrambled sequence, hence `NaN`.
+- `monte_carlo` uses the same number of calls (paths). Quasi-Monte Carlo uses the largest power of two not above it (a Sobol requirement). Its `stderr` is not defined for a single scrambled sequence, hence `null`.
 
 Options: `--qubits` (price qubits, 3 to 7 in the campaign; the circuit has `qubits + 1` qubits) and `--depth` (MLAE ladder: Grover powers 0, 1, 2, 4, …, 2^(depth−2), 100 measurements each).
 
@@ -103,7 +105,13 @@ qae-european verify                         # H0-b: full simulation of A Q^k on 
 qae-european campaign --processes 2         # 1,848 scenarios, about 25 minutes on 2 cores
 ```
 
-Outputs go to `results/verification.json` and `results/campaign.csv` (one row per scenario, number of qubits and budget; columns described at the top of `src/qae_european/campaign.py`).
+Outputs go to `results/verification.json`, `results/campaign.csv` (one row per scenario, number of qubits and budget; columns described at the top of `src/qae_european/campaign.py`) and `results/run_info.json` (the commit, parameters and library versions of the run). The published results are in the repository.
+
+To check them against the criteria of Document 3 and redraw its figures (needs the docs extra, `pip install -e ".[docs]"`):
+
+```bash
+python docs/analyse.py                      # writes results/summary.json and docs/img/*.png
+```
 
 The campaign is **resumable**: scenarios already in the CSV are skipped. To split it, use `--start` and `--stop` (scenario indices, 0 to 1,848).
 
@@ -134,7 +142,8 @@ src/qae_european/
   campaign.py            the scenario grid, the runner, the verification
   cli.py                 the qae-european command
 tests/test_package.py    unit tests
-docs/                    Documents 1 to 3
+docs/                    Documents 1 to 3, figures (make_figures.py), analysis (analyse.py), exports
+results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json
 ```
 
 ## 7. Adapt it to another payoff

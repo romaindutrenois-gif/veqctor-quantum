@@ -191,8 +191,8 @@ Invalid inputs raise `ValueError`. The kit uses **no external data**: every inpu
 pytest tests                                   # unit tests
 qae-european verify                            # H0-b
 qae-european campaign --processes 2            # Document 3 campaign
-python docs/make_figures.py circuit            # figures of this document (needs the docs extra)
-python docs/make_figures.py results            # figures of Document 3
+python docs/make_figures.py                    # figures of this document (needs the docs extra)
+python docs/analyse.py                         # Document 3: criteria, summary.json and figures
 ```
 
 ## 11. Limitations

@@ -1,0 +1,684 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  10pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{DejaVu Sans}
+  \setmonofont[]{DejaVu Sans Mono}
+  \setmathfont[]{DejaVu Sans}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\usepackage{xcolor}
+\definecolor{plblue}{HTML}{1F3864}
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\color{plblue}}
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\},fontsize=\footnotesize}
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\hypertarget{document-2-benchmarks}{%
+\section{Document 2: Benchmarks}\label{document-2-benchmarks}}
+
+\textbf{Kit:} qae\_european 1.0.0 · \textbf{Scope:} the classical
+methods amplitude estimation is compared with: which ones, why, how they
+are implemented, with which parameters, and which alternatives were
+considered and not used.
+
+Companion documents: \href{circuit.md}{Document 1: Circuit} ·
+\href{tests.md}{Document 3: Tests} · \href{../README.md}{User guide}.
+
+\emph{This file is generated by \texttt{docs/build\_benchmarks\_doc.py}
+from \texttt{docs/benchmarks\_head.md} and the source files, so the code
+in section 6 is always the code that ran. Edit the head file or the
+code, not this file.}
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{1-what-a-benchmark-must-answer}{%
+\subsection{1. What a benchmark must
+answer}\label{1-what-a-benchmark-must-answer}}
+
+The method under test reads a price from an amplitude that it estimates
+with a number of \textbf{calls} to the circuit A. A benchmark is useful
+if it answers one of three questions:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{What is the right answer?} A reference price with no sampling
+  error.
+\item
+  \textbf{Is the quantum estimator better than the classical sampler it
+  is meant to replace,} measured on the same target and with the same
+  number of calls?
+\item
+  \textbf{How does it compare with the best classical sampling method}
+  for this problem, not just the plain one?
+\end{enumerate}
+
+\hypertarget{2-how-performance-is-measured}{%
+\subsection{2. How performance is
+measured}\label{2-how-performance-is-measured}}
+
+The full definition is in Document 3, section 1.1. In short:
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Performance is measured in calls}, not in time:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    for amplitude estimation, one application of A;
+  \item
+    for Monte Carlo, one simulated path;
+  \item
+    for quasi-Monte Carlo, one point of the sequence.
+  \end{itemize}
+\item
+  \textbf{Error is the root-mean-square error (RMSE)} over independent
+  repetitions, against a stated target. The median absolute error is
+  also reported.
+\item
+  \textbf{Two methods are compared by their relative efficiency} E(ε) =
+  N\_comparator(ε) / N\_QAE(ε), the ratio of calls each needs to reach
+  the same RMSE ε.
+\end{itemize}
+
+Wall-clock time is deliberately out of scope. A classical simulation of
+a quantum circuit is far slower than Monte Carlo on the same machine,
+and a timing of the simulator says nothing about hardware.
+
+\hypertarget{3-the-benchmarks-chosen}{%
+\subsection{3. The benchmarks chosen}\label{3-the-benchmarks-chosen}}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2514}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.1725}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.3449}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 6\tabcolsep) * \real{0.2112}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Benchmark
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Target
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Question it answers
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Class
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Black-Scholes closed form & Continuous price & 1. The reference &
+\texttt{BlackScholes} \\
+Plain Monte Carlo on the grid & Grid price & 2. Like-for-like comparator
+& \texttt{MonteCarlo("grid",\ n)} \\
+Plain Monte Carlo, continuous & Continuous price & 2. What a desk would
+get by plain sampling, including all errors &
+\texttt{MonteCarlo("continuous")} \\
+Quasi-Monte Carlo, scrambled Sobol & Continuous price & 3. Best
+classical sampling method & \texttt{QuasiMonteCarlo} \\
+\end{longtable}
+
+All of them share one interface, \texttt{price(option,\ budget,\ rng)},
+which returns an \texttt{Estimate(value,\ calls,\ stderr)}.
+
+\hypertarget{31-black-scholes-closed-form-the-reference}{%
+\subsubsection{3.1 Black-Scholes closed form: the
+reference}\label{31-black-scholes-closed-form-the-reference}}
+
+C = S₀ N(d₁) − K e\^{}(−rT) N(d₂), with d₁ = {[}ln(S₀/K) + (r + σ²/2)
+T{]} / (σ√T) and d₂ = d₁ − σ√T.
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Why.} The model is Black-Scholes, so the closed form is exact:
+  every error against it is a true error of the method. It uses no
+  samples (calls = 0).
+\item
+  \textbf{Accuracy.} \texttt{scipy.stats.norm.cdf} is accurate to
+  machine precision over the campaign\textquotesingle s ranges. The
+  smallest in-scope price is 0.01, well above any rounding issue.
+\item
+  \textbf{Limit.} It prices the continuous distribution, not the grid
+  the circuit sees. Errors against it mix the discretisation bias and
+  the statistical error. That is why the like-for-like comparator below
+  targets the grid.
+\end{itemize}
+
+\hypertarget{32-plain-monte-carlo-on-the-grid-the-like-for-like-comparator}{%
+\subsubsection{3.2 Plain Monte Carlo on the grid: the like-for-like
+comparator}\label{32-plain-monte-carlo-on-the-grid-the-like-for-like-comparator}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{How.} It draws grid points i with the probabilities p\_i of
+  the circuit\textquotesingle s \texttt{LognormalGrid}, and averages the
+  discounted payoffs e\^{}(−rT) max(x\_i − K, 0). Drawing N points is
+  implemented as one multinomial draw of the counts, which is equivalent
+  and faster. The standard error is the sample standard deviation
+  divided by √N.
+\item
+  \textbf{Why.} It estimates exactly the quantity the circuit encodes,
+  the grid price, with the classical procedure the quantum algorithm
+  replaces: sampling the distribution and averaging the payoff. A
+  quantum computer measuring A directly, without Grover steps, would
+  behave the same way: Bernoulli draws with probability a. Amplitude
+  estimation is supposed to beat that, and this comparator isolates the
+  claim. There is no discretisation bias and no difference in target,
+  only statistical error against statistical error, at the same number
+  of calls.
+\item
+  \textbf{Used for:} H1 and H2 (Document 3).
+\end{itemize}
+
+\hypertarget{33-plain-monte-carlo-continuous}{%
+\subsubsection{3.3 Plain Monte Carlo,
+continuous}\label{33-plain-monte-carlo-continuous}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{How.} S\_T = S₀ exp((r − σ²/2) T + σ√T Z), with Z standard
+  normal, then the discounted average payoff. Unbiased for the
+  Black-Scholes price.
+\item
+  \textbf{Why.} It is what a desk would actually run without a quantum
+  computer. It shows the total error a user would see, against the
+  continuous price, with no discretisation.
+\end{itemize}
+
+\hypertarget{34-quasi-monte-carlo-scrambled-sobol-the-best-classical-sampler}{%
+\subsubsection{3.4 Quasi-Monte Carlo, scrambled Sobol: the best
+classical
+sampler}\label{34-quasi-monte-carlo-scrambled-sobol-the-best-classical-sampler}}
+
+\begin{itemize}
+\item
+  \textbf{How.}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Take a one-dimensional Sobol sequence with Owen scrambling
+    (\texttt{scipy.stats.qmc.Sobol}, \texttt{scramble=True}).
+  \item
+    Map each point u\_j to Z\_j = Φ⁻¹(u\_j), then to S\_T as in plain
+    Monte Carlo, and average the discounted payoffs.
+  \item
+    The number of points is the largest power of two not above the
+    budget, because Sobol\textquotesingle s balance properties hold for
+    powers of two.
+  \item
+    Each repetition uses a fresh scramble, so repetitions are
+    independent randomisations and their spread measures the error. The
+    method reports no standard error of its own.
+  \end{itemize}
+\item
+  \textbf{Why.} The payoff is a smooth function of one variable, apart
+  from the kink at the strike. In one dimension, scrambled Sobol
+  converges at close to 1/N, against 1/√N for plain Monte Carlo. That is
+  the same rate amplitude estimation promises. Leaving it out would
+  compare the quantum method only with the weakest classical sampler.
+  Document 3 states in advance (H4) that amplitude estimation is
+  \textbf{not} expected to beat it.
+\item
+  \textbf{Cost of the power-of-two rule.} At each budget, quasi-Monte
+  Carlo uses fewer points than the others:
+
+  \begin{longtable}[]{@{}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.2389}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1428}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1428}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1428}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1564}}
+    >{\raggedright\arraybackslash}p{(\columnwidth - 10\tabcolsep) * \real{0.1564}}@{}}
+  \toprule\noalign{}
+  \begin{minipage}[b]{\linewidth}\raggedright
+  Budget (calls)
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  1,800
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  3,500
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  6,800
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  13,300
+  \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+  26,200
+  \end{minipage} \\
+  \midrule\noalign{}
+  \endhead
+  \bottomrule\noalign{}
+  \endlastfoot
+  Sobol points & 1,024 & 2,048 & 4,096 & 8,192 & 16,384 \\
+  \end{longtable}
+
+  That is between 57\% and 63\% of the budget. This handicaps
+  quasi-Monte Carlo, never amplitude estimation. The number of points
+  actually used is recorded (\texttt{calls\_qmc}), and relative
+  efficiencies are computed with it.
+\end{itemize}
+
+\hypertarget{4-variance-reduction-none-in-the-comparators}{%
+\subsection{4. Variance reduction: none in the
+comparators}\label{4-variance-reduction-none-in-the-comparators}}
+
+Plain Monte Carlo is run \textbf{without} variance reduction (no
+antithetic variates, control variates, importance sampling or
+stratification). Three reasons:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  \textbf{It is what amplitude estimation replaces.} The quadratic
+  speed-up is stated against plain sampling. Variance reduction lowers
+  the constant in front of 1/√N but not the rate.
+\item
+  \textbf{It applies to both sides.} The same ideas exist for amplitude
+  estimation (for example, encoding a control variate in the payoff, or
+  a better-adapted grid). Adding them to one side only would mix two
+  effects.
+\item
+  \textbf{The best classical method is covered separately.} Scrambled
+  Sobol (section 3.4) is itself a variance-reduction method, and the
+  strongest one for this one-dimensional problem. It answers "what if
+  the classical side tries hard".
+\end{enumerate}
+
+A reader who wants Monte Carlo with variance reduction can subclass
+\texttt{Benchmark} (section 6) and run it through the same campaign
+code.
+
+\hypertarget{5-benchmarks-considered-and-not-used}{%
+\subsection{5. Benchmarks considered and not
+used}\label{5-benchmarks-considered-and-not-used}}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.3020}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 2\tabcolsep) * \real{0.6780}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Candidate
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Why not used
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+\textbf{Deterministic quadrature} (e.g. Gauss-Hermite, or the exact sum
+over the grid) & For a one-dimensional integral, quadrature beats every
+sampling method: it is exact to machine precision in a few dozen points.
+It is used, implicitly, as the reference: the grid price is that exact
+sum, and Black-Scholes is the exact integral. As a \emph{comparator} it
+would only state that sampling is the wrong tool in one dimension. That
+is true and is said here, but amplitude estimation is meant for problems
+where quadrature fails (many dimensions, path dependence), and this kit
+only tests the method on the simplest case. \\
+\textbf{Monte Carlo with variance reduction} & See section 4: it changes
+the constant, not the rate, and would have to be matched on the quantum
+side. Left to users through the \texttt{Benchmark} interface. \\
+\textbf{Multilevel Monte Carlo} & It reduces the cost of time
+discretisation in path simulation. Here S\_T is sampled exactly in one
+step, so there is nothing for it to reduce. \\
+\textbf{Other amplitude-estimation variants} (canonical QAE with phase
+estimation, iterative QAE, power-law MLAE) & These are alternatives to
+the method under test, not classical benchmarks. Canonical QAE needs
+controlled Grover operators and deeper circuits. Iterative QAE is a
+natural next comparison, out of scope for the simplest kit. \\
+\textbf{An external quantum implementation} (e.g.
+Qiskit\textquotesingle s finance application module) & It would
+cross-check the circuit against an independent implementation of the
+same construction. Not used, to keep the dependencies to Qiskit, NumPy
+and SciPy. The circuit is instead checked against the exact grid price
+(H0-a) and by full statevector simulation (H0-b). \\
+\textbf{Wall-clock timing} & Out of scope (section 2). \\
+\end{longtable}
+
+\hypertarget{6-the-code}{%
+\subsection{6. The code}\label{6-the-code}}
+
+The benchmarks live in \texttt{src/qae\_european/benchmarks/}. Below are
+the full source files, comments included, exactly as run.
+
+\hypertarget{61-basepy-shared-interface-and-result-type}{%
+\subsubsection{\texorpdfstring{6.1 \texttt{base.py}: Shared interface
+and result
+type}{6.1 base.py: Shared interface and result type}}\label{61-basepy-shared-interface-and-result-type}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{"""Shared engine of the benchmarks: the result type and the common interface."""}
+\ImportTok{from}\NormalTok{ dataclasses }\ImportTok{import}\NormalTok{ dataclass}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+
+
+\AttributeTok{@dataclass}\NormalTok{(frozen}\OperatorTok{=}\VariableTok{True}\NormalTok{)}
+\KeywordTok{class}\NormalTok{ Estimate:}
+    \CommentTok{"""Result of one pricing run.}
+
+\CommentTok{    value : float         price estimate}
+\CommentTok{    calls : int           number of payoff evaluations (paths or points) actually used; 0 for a closed form}
+\CommentTok{    stderr : float        standard error reported by the method itself, if it has one (NaN otherwise)}
+\CommentTok{    """}
+\NormalTok{    value: }\BuiltInTok{float}
+\NormalTok{    calls: }\BuiltInTok{int}
+\NormalTok{    stderr: }\BuiltInTok{float} \OperatorTok{=} \BuiltInTok{float}\NormalTok{(}\StringTok{"nan"}\NormalTok{)}
+
+
+\KeywordTok{class}\NormalTok{ Benchmark:}
+    \CommentTok{"""Interface: price(option, budget, rng) returns an Estimate using at most \textasciigrave{}budget\textasciigrave{} payoff evaluations."""}
+\NormalTok{    name }\OperatorTok{=} \StringTok{"benchmark"}
+
+    \KeywordTok{def}\NormalTok{ price(}\VariableTok{self}\NormalTok{, option, budget: }\BuiltInTok{int}\NormalTok{, rng: np.random.Generator) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Estimate:  }\CommentTok{\# pragma: no cover}
+        \ControlFlowTok{raise} \PreprocessorTok{NotImplementedError}
+
+    \AttributeTok{@staticmethod}
+    \KeywordTok{def}\NormalTok{ \_discounted\_payoffs(option, terminal\_prices: np.ndarray) }\OperatorTok{{-}\textgreater{}}\NormalTok{ np.ndarray:}
+        \CommentTok{"""Shared step: discounted call payoffs for an array of terminal prices."""}
+        \ControlFlowTok{return}\NormalTok{ option.discount }\OperatorTok{*}\NormalTok{ option.payoff(terminal\_prices)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{62-black_scholespy-black-scholes-closed-form}{%
+\subsubsection{\texorpdfstring{6.2 \texttt{black\_scholes.py}:
+Black-Scholes closed
+form}{6.2 black\_scholes.py: Black-Scholes closed form}}\label{62-black_scholespy-black-scholes-closed-form}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{"""Black{-}Scholes closed form for a European call: the reference price."""}
+\ImportTok{import}\NormalTok{ math}
+\ImportTok{from}\NormalTok{ scipy.stats }\ImportTok{import}\NormalTok{ norm}
+
+\ImportTok{from}\NormalTok{ .base }\ImportTok{import}\NormalTok{ Benchmark, Estimate}
+
+
+\KeywordTok{class}\NormalTok{ BlackScholes(Benchmark):}
+    \CommentTok{"""C = S0 N(d1) {-} K exp({-}rT) N(d2),}
+\CommentTok{    d1 = [ln(S0/K) + (r + sigma\^{}2/2) T] / (sigma sqrt T),  d2 = d1 {-} sigma sqrt T.}
+
+\CommentTok{    Exact under the model; uses no samples (calls = 0). Implemented with scipy.stats.norm.cdf,}
+\CommentTok{    which is accurate to machine precision across the parameter ranges of the campaign.}
+\CommentTok{    """}
+\NormalTok{    name }\OperatorTok{=} \StringTok{"black\_scholes"}
+
+    \AttributeTok{@staticmethod}
+    \KeywordTok{def}\NormalTok{ call(option) }\OperatorTok{{-}\textgreater{}} \BuiltInTok{float}\NormalTok{:}
+\NormalTok{        sq }\OperatorTok{=}\NormalTok{ option.log\_std}
+\NormalTok{        d1 }\OperatorTok{=}\NormalTok{ (math.log(option.spot }\OperatorTok{/}\NormalTok{ option.strike) }\OperatorTok{+}\NormalTok{ (option.rate }\OperatorTok{+} \FloatTok{0.5} \OperatorTok{*}\NormalTok{ option.vol }\OperatorTok{**} \DecValTok{2}\NormalTok{) }\OperatorTok{*}\NormalTok{ option.maturity) }\OperatorTok{/}\NormalTok{ sq}
+\NormalTok{        d2 }\OperatorTok{=}\NormalTok{ d1 }\OperatorTok{{-}}\NormalTok{ sq}
+        \ControlFlowTok{return} \BuiltInTok{float}\NormalTok{(option.spot }\OperatorTok{*}\NormalTok{ norm.cdf(d1) }\OperatorTok{{-}}\NormalTok{ option.strike }\OperatorTok{*}\NormalTok{ option.discount }\OperatorTok{*}\NormalTok{ norm.cdf(d2))}
+
+    \KeywordTok{def}\NormalTok{ price(}\VariableTok{self}\NormalTok{, option, budget: }\BuiltInTok{int} \OperatorTok{=} \DecValTok{0}\NormalTok{, rng}\OperatorTok{=}\VariableTok{None}\NormalTok{) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Estimate:}
+        \ControlFlowTok{return}\NormalTok{ Estimate(}\VariableTok{self}\NormalTok{.call(option), }\DecValTok{0}\NormalTok{, }\FloatTok{0.0}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{63-monte_carlopy-plain-monte-carlo-continuous-and-on-the-grid}{%
+\subsubsection{\texorpdfstring{6.3 \texttt{monte\_carlo.py}: Plain Monte
+Carlo, continuous and on the
+grid}{6.3 monte\_carlo.py: Plain Monte Carlo, continuous and on the grid}}\label{63-monte_carlopy-plain-monte-carlo-continuous-and-on-the-grid}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{"""Plain Monte Carlo, with two sampling settings.}
+
+\CommentTok{sampling="continuous": draws S\_T exactly from the lognormal, S\_T = S0 exp((r {-} sigma\^{}2/2) T + sigma sqrt(T) Z),}
+\CommentTok{                       Z standard normal. Unbiased for the Black{-}Scholes price.}
+\CommentTok{sampling="grid":       draws grid points with the probabilities of the circuit\textquotesingle{}s LognormalGrid}
+\CommentTok{                       (n price qubits). Unbiased for the grid price, i.e. the same target as the circuit:}
+\CommentTok{                       it isolates statistical error from discretisation bias.}
+
+\CommentTok{No variance reduction: plain sampling is exactly what amplitude estimation replaces.}
+\CommentTok{Standard error = sample standard deviation / sqrt(budget).}
+\CommentTok{"""}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+
+\ImportTok{from}\NormalTok{ .base }\ImportTok{import}\NormalTok{ Benchmark, Estimate}
+\ImportTok{from}\NormalTok{ ..grid }\ImportTok{import}\NormalTok{ LognormalGrid}
+
+
+\KeywordTok{class}\NormalTok{ MonteCarlo(Benchmark):}
+    \KeywordTok{def} \FunctionTok{\_\_init\_\_}\NormalTok{(}\VariableTok{self}\NormalTok{, sampling: }\BuiltInTok{str} \OperatorTok{=} \StringTok{"continuous"}\NormalTok{, n\_qubits: }\BuiltInTok{int} \OperatorTok{|} \VariableTok{None} \OperatorTok{=} \VariableTok{None}\NormalTok{):}
+        \ControlFlowTok{if}\NormalTok{ sampling }\KeywordTok{not} \KeywordTok{in}\NormalTok{ (}\StringTok{"continuous"}\NormalTok{, }\StringTok{"grid"}\NormalTok{):}
+            \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{"sampling must be \textquotesingle{}continuous\textquotesingle{} or \textquotesingle{}grid\textquotesingle{}"}\NormalTok{)}
+        \ControlFlowTok{if}\NormalTok{ sampling }\OperatorTok{==} \StringTok{"grid"} \KeywordTok{and}\NormalTok{ n\_qubits }\KeywordTok{is} \VariableTok{None}\NormalTok{:}
+            \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{"grid sampling needs n\_qubits"}\NormalTok{)}
+        \VariableTok{self}\NormalTok{.sampling, }\VariableTok{self}\NormalTok{.n\_qubits }\OperatorTok{=}\NormalTok{ sampling, n\_qubits}
+        \VariableTok{self}\NormalTok{.name }\OperatorTok{=} \StringTok{"monte\_carlo"} \ControlFlowTok{if}\NormalTok{ sampling }\OperatorTok{==} \StringTok{"continuous"} \ControlFlowTok{else} \SpecialStringTok{f"monte\_carlo\_grid\_}\SpecialCharTok{\{}\NormalTok{n\_qubits}\SpecialCharTok{\}}\SpecialStringTok{"}
+
+    \KeywordTok{def}\NormalTok{ price(}\VariableTok{self}\NormalTok{, option, budget: }\BuiltInTok{int}\NormalTok{, rng: np.random.Generator) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Estimate:}
+        \ControlFlowTok{if}\NormalTok{ budget }\OperatorTok{\textless{}} \DecValTok{2}\NormalTok{:}
+            \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{"budget must be at least 2"}\NormalTok{)}
+        \ControlFlowTok{if} \VariableTok{self}\NormalTok{.sampling }\OperatorTok{==} \StringTok{"continuous"}\NormalTok{:}
+\NormalTok{            z }\OperatorTok{=}\NormalTok{ rng.standard\_normal(budget)}
+\NormalTok{            st }\OperatorTok{=}\NormalTok{ np.exp(option.log\_mean }\OperatorTok{+}\NormalTok{ option.log\_std }\OperatorTok{*}\NormalTok{ z)}
+\NormalTok{            pay }\OperatorTok{=} \VariableTok{self}\NormalTok{.\_discounted\_payoffs(option, st)}
+            \ControlFlowTok{return}\NormalTok{ Estimate(}\BuiltInTok{float}\NormalTok{(pay.mean()), budget, }\BuiltInTok{float}\NormalTok{(pay.std(ddof}\OperatorTok{=}\DecValTok{1}\NormalTok{) }\OperatorTok{/}\NormalTok{ np.sqrt(budget)))}
+\NormalTok{        g }\OperatorTok{=}\NormalTok{ LognormalGrid(option, }\VariableTok{self}\NormalTok{.n\_qubits)}
+\NormalTok{        counts }\OperatorTok{=}\NormalTok{ rng.multinomial(budget, g.probs)             }\CommentTok{\# equivalent to drawing \textasciigrave{}budget\textasciigrave{} grid points}
+\NormalTok{        pay }\OperatorTok{=}\NormalTok{ option.discount }\OperatorTok{*}\NormalTok{ g.payoffs()}
+\NormalTok{        mean }\OperatorTok{=} \BuiltInTok{float}\NormalTok{(np.dot(counts, pay) }\OperatorTok{/}\NormalTok{ budget)}
+\NormalTok{        var }\OperatorTok{=} \BuiltInTok{float}\NormalTok{(np.dot(counts, (pay }\OperatorTok{{-}}\NormalTok{ mean) }\OperatorTok{**} \DecValTok{2}\NormalTok{) }\OperatorTok{/}\NormalTok{ (budget }\OperatorTok{{-}} \DecValTok{1}\NormalTok{))}
+        \ControlFlowTok{return}\NormalTok{ Estimate(mean, budget, }\BuiltInTok{float}\NormalTok{(np.sqrt(var }\OperatorTok{/}\NormalTok{ budget)))}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{64-quasi_monte_carlopy-quasi-monte-carlo-scrambled-sobol}{%
+\subsubsection{\texorpdfstring{6.4 \texttt{quasi\_monte\_carlo.py}:
+Quasi-Monte Carlo, scrambled
+Sobol}{6.4 quasi\_monte\_carlo.py: Quasi-Monte Carlo, scrambled Sobol}}\label{64-quasi_monte_carlopy-quasi-monte-carlo-scrambled-sobol}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{"""Quasi{-}Monte Carlo with a scrambled Sobol sequence (Owen scrambling, scipy.stats.qmc.Sobol).}
+
+\CommentTok{One{-}dimensional problem: u\_j in (0,1) from the Sobol sequence, Z\_j = Phi\^{}\{{-}1\}(u\_j), then S\_T as in plain}
+\CommentTok{Monte Carlo. The number of points is the largest power of two not above the budget (Sobol\textquotesingle{}s balance}
+\CommentTok{properties hold for powers of two), so \textasciigrave{}calls\textasciigrave{} can be below the budget; the campaign records it.}
+
+\CommentTok{Each call uses a fresh scramble seeded from \textasciigrave{}rng\textasciigrave{}, so repeated runs are independent randomisations:}
+\CommentTok{the campaign measures the error across repetitions. The method itself reports no standard error.}
+\CommentTok{"""}
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ scipy.stats }\ImportTok{import}\NormalTok{ norm, qmc}
+
+\ImportTok{from}\NormalTok{ .base }\ImportTok{import}\NormalTok{ Benchmark, Estimate}
+
+
+\KeywordTok{class}\NormalTok{ QuasiMonteCarlo(Benchmark):}
+\NormalTok{    name }\OperatorTok{=} \StringTok{"quasi\_monte\_carlo"}
+
+    \KeywordTok{def}\NormalTok{ price(}\VariableTok{self}\NormalTok{, option, budget: }\BuiltInTok{int}\NormalTok{, rng: np.random.Generator) }\OperatorTok{{-}\textgreater{}}\NormalTok{ Estimate:}
+        \ControlFlowTok{if}\NormalTok{ budget }\OperatorTok{\textless{}} \DecValTok{2}\NormalTok{:}
+            \ControlFlowTok{raise} \PreprocessorTok{ValueError}\NormalTok{(}\StringTok{"budget must be at least 2"}\NormalTok{)}
+\NormalTok{        m }\OperatorTok{=} \BuiltInTok{int}\NormalTok{(np.floor(np.log2(budget)))}
+\NormalTok{        sobol }\OperatorTok{=}\NormalTok{ qmc.Sobol(d}\OperatorTok{=}\DecValTok{1}\NormalTok{, scramble}\OperatorTok{=}\VariableTok{True}\NormalTok{, seed}\OperatorTok{=}\NormalTok{rng)}
+\NormalTok{        u }\OperatorTok{=}\NormalTok{ sobol.random\_base2(m).ravel()}
+\NormalTok{        st }\OperatorTok{=}\NormalTok{ np.exp(option.log\_mean }\OperatorTok{+}\NormalTok{ option.log\_std }\OperatorTok{*}\NormalTok{ norm.ppf(u))}
+\NormalTok{        pay }\OperatorTok{=} \VariableTok{self}\NormalTok{.\_discounted\_payoffs(option, st)}
+        \ControlFlowTok{return}\NormalTok{ Estimate(}\BuiltInTok{float}\NormalTok{(pay.mean()), }\DecValTok{2} \OperatorTok{**}\NormalTok{ m)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{7-parameters-used-in-the-campaign}{%
+\subsection{7. Parameters used in the
+campaign}\label{7-parameters-used-in-the-campaign}}
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2685}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4840}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2276}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Parameter
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Value
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Where
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Budgets (calls) & 1,800 · 3,500 · 6,800 · 13,300 · 26,200 (equal to the
+amplitude-estimation ladders of depth 4 to 8) & \texttt{campaign.py} \\
+Sobol points & largest power of two not above the budget &
+\texttt{quasi\_monte\_carlo.py} \\
+Repetitions per configuration & 50, independent &
+\texttt{campaign.DRAWS} \\
+Seeds & master seed 20261103; one stream per (scenario, qubits, depth,
+method) through \texttt{numpy.random.SeedSequence} &
+\texttt{campaign.rng\_for} \\
+Variance reduction & none in Monte Carlo; Owen scrambling in quasi-Monte
+Carlo & section 4 \\
+Grid for Monte Carlo on the grid & the circuit\textquotesingle s own
+\texttt{LognormalGrid(option,\ n)}, width 4 standard deviations &
+\texttt{monte\_carlo.py}, \texttt{grid.py} \\
+\end{longtable}
+
+Continuous Monte Carlo and quasi-Monte Carlo do not depend on the number
+of qubits. They are computed once per scenario and budget, and repeated
+on each qubit row of the results.
+
+\hypertarget{8-unit-tests-of-the-benchmarks}{%
+\subsection{8. Unit tests of the
+benchmarks}\label{8-unit-tests-of-the-benchmarks}}
+
+\texttt{tests/test\_package.py} checks:
+
+\begin{itemize}
+\tightlist
+\item
+  the Black-Scholes price against the textbook value (S₀ = K = 100, r =
+  5\%, σ = 20\%, T = 1: 10.4506) to 10⁻⁹, and the no-arbitrage bounds on
+  a second case;
+\item
+  that both Monte Carlo settings are unbiased: with 200,000 paths,
+  within 4 standard errors of their own target (Black-Scholes, grid
+  price);
+\item
+  that quasi-Monte Carlo uses 4,096 points for a budget of 5,000 and
+  lands within 0.02 of Black-Scholes;
+\item
+  that a campaign row is identical when recomputed from its seed.
+\end{itemize}
+
+Run them with \texttt{pytest\ tests}.
+
+\end{document}

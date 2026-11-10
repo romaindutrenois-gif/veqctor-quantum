@@ -1,0 +1,444 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  10pt,
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+  \setmainfont[]{DejaVu Sans}
+  \setmonofont[]{DejaVu Sans Mono}
+  \setmathfont[]{DejaVu Sans}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\newenvironment{Shaded}{}{}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.49,0.56,0.16}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.53,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.56,0.13,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.73,0.13,0.13}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{1.00,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.25,0.63,0.44}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.02,0.16,0.49}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.50,0.00}{\textbf{#1}}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.40,0.40,0.40}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.44,0.13}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.74,0.48,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.73,0.40,0.53}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.10,0.09,0.49}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.25,0.44,0.63}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.38,0.63,0.69}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\usepackage{xcolor}
+\definecolor{plblue}{HTML}{1F3864}
+\usepackage{sectsty}
+\allsectionsfont{\sffamily\color{plblue}}
+\usepackage{fvextra}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\},fontsize=\footnotesize}
+\usepackage{etoolbox}
+\AtBeginEnvironment{longtable}{\footnotesize}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  colorlinks=true,
+  linkcolor={Maroon},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{}
+
+\begin{document}
+
+\hypertarget{qae_european-how-to-use-the-kit}{%
+\section{qae\_european: how to use the
+kit}\label{qae_european-how-to-use-the-kit}}
+
+Prices a European call under Black-Scholes with
+\textbf{maximum-likelihood amplitude estimation} (MLAE) on a quantum
+circuit simulator, and compares it with Black-Scholes, Monte Carlo and
+quasi-Monte Carlo.
+
+It is the simplest circuit we could build that still exercises the full
+amplitude-estimation method. A European call has a closed form, so this
+kit is not a case for using a quantum computer to price one: it is a
+test bench for the method, its benchmarks and its validation.
+
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.2997}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.5112}}
+  >{\raggedright\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1691}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Document
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Content
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Status
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+This guide & Install, run, reproduce, extend & Current \\
+\href{docs/circuit.md}{Document 1: Circuit} & The circuit, environment,
+inputs, outputs, reproducibility & Written \\
+\href{docs/benchmarks.md}{Document 2: Benchmarks} & The comparators, why
+they were chosen, their code and parameters & Written \\
+\href{docs/tests.md}{Document 3: Tests} & Pre-registered test plan (Part
+1), results and verdicts (Part 2) & Written \\
+\end{longtable}
+
+The documents are also exported to Word, LaTeX and PDF in
+\href{docs/export/}{\texttt{docs/export/}}
+(\texttt{python\ tools/export/export\_docs.py\ kits/qae\_european} from
+the repository root, after
+\texttt{python\ docs/build\_benchmarks\_doc.py}).
+
+Earlier exploratory documents are kept in \texttt{docs/archive/} for the
+record. They describe a previous version of the code and are superseded.
+
+\begin{center}\rule{0.5\linewidth}{0.5pt}\end{center}
+
+\hypertarget{1-install}{%
+\subsection{1. Install}\label{1-install}}
+
+Python 3.10 or later (tested on 3.13).
+
+\textbf{To reproduce the published results exactly}, use the frozen
+environment:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{git}\NormalTok{ clone https://github.com/romaindutrenois{-}gif/veqctor{-}quantum.git}
+\BuiltInTok{cd}\NormalTok{ veqctor{-}quantum/kits/qae\_european}
+\ExtensionTok{python} \AttributeTok{{-}m}\NormalTok{ venv .venv }\KeywordTok{\&\&} \BuiltInTok{source}\NormalTok{ .venv/bin/activate}
+\ExtensionTok{pip}\NormalTok{ install }\AttributeTok{{-}r}\NormalTok{ requirements{-}lock.txt}
+\ExtensionTok{pip}\NormalTok{ install }\AttributeTok{{-}{-}no{-}deps} \AttributeTok{{-}e}\NormalTok{ .}
+\end{Highlighting}
+\end{Shaded}
+
+\textbf{To use the kit in your own environment} (versions within the
+ranges in \texttt{pyproject.toml}):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{pip}\NormalTok{ install }\AttributeTok{{-}e} \StringTok{".[test]"}
+\end{Highlighting}
+\end{Shaded}
+
+Check the install:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{pytest}\NormalTok{ tests          }\CommentTok{\# 22 unit tests, a few seconds}
+\end{Highlighting}
+\end{Shaded}
+
+No account or quantum hardware is needed: everything runs on a local
+simulator.
+
+\hypertarget{2-price-one-option}{%
+\subsection{2. Price one option}\label{2-price-one-option}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{qae{-}european}\NormalTok{ price }\AttributeTok{{-}{-}spot}\NormalTok{ 100 }\AttributeTok{{-}{-}strike}\NormalTok{ 105 }\AttributeTok{{-}{-}rate}\NormalTok{ 0.03 }\AttributeTok{{-}{-}vol}\NormalTok{ 0.2 }\AttributeTok{{-}{-}maturity}\NormalTok{ 1 }\AttributeTok{{-}{-}qubits}\NormalTok{ 5 }\AttributeTok{{-}{-}depth}\NormalTok{ 8 }\AttributeTok{{-}{-}seed}\NormalTok{ 1}
+\end{Highlighting}
+\end{Shaded}
+
+Output (frozen environment):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{\{}
+  \DataTypeTok{"black\_scholes"}\FunctionTok{:} \FloatTok{7.12806}\FunctionTok{,}
+  \DataTypeTok{"grid\_price"}\FunctionTok{:} \FloatTok{7.11203}\FunctionTok{,}
+  \DataTypeTok{"circuit\_exact"}\FunctionTok{:} \FloatTok{7.11203}\FunctionTok{,}
+  \DataTypeTok{"amplitude\_estimation"}\FunctionTok{:} \FloatTok{7.09878}\FunctionTok{,}
+  \DataTypeTok{"calls"}\FunctionTok{:} \DecValTok{26200}\FunctionTok{,}
+  \DataTypeTok{"monte\_carlo"}\FunctionTok{:} \FunctionTok{\{}\DataTypeTok{"value"}\FunctionTok{:} \FloatTok{6.97917}\FunctionTok{,} \DataTypeTok{"calls"}\FunctionTok{:} \DecValTok{26200}\FunctionTok{,} \DataTypeTok{"stderr"}\FunctionTok{:} \FloatTok{0.07683}\FunctionTok{\},}
+  \DataTypeTok{"quasi\_monte\_carlo"}\FunctionTok{:} \FunctionTok{\{}\DataTypeTok{"value"}\FunctionTok{:} \FloatTok{7.12759}\FunctionTok{,} \DataTypeTok{"calls"}\FunctionTok{:} \DecValTok{16384}\FunctionTok{,} \DataTypeTok{"stderr"}\FunctionTok{:} \KeywordTok{null}\FunctionTok{\}}
+\FunctionTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+How to read it:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{black\_scholes} is the reference price.
+\item
+  \texttt{grid\_price} is the price on the discretised distribution
+  (2\^{}5 = 32 points). The gap to Black-Scholes is the
+  \textbf{discretisation bias}; it shrinks as \texttt{-\/-qubits} grows.
+\item
+  \texttt{circuit\_exact} is the price read from the exact state of the
+  circuit. It must equal \texttt{grid\_price} to machine precision: this
+  checks the circuit.
+\item
+  \texttt{amplitude\_estimation} is one MLAE estimate using
+  \texttt{calls} applications of the circuit A. Its error against
+  \texttt{grid\_price} is the \textbf{statistical error}.
+\item
+  \texttt{monte\_carlo} uses the same number of calls (paths).
+  Quasi-Monte Carlo uses the largest power of two not above it (a Sobol
+  requirement). Its \texttt{stderr} is not defined for a single
+  scrambled sequence, hence \texttt{null}.
+\end{itemize}
+
+Options: \texttt{-\/-qubits} (price qubits, 3 to 7 in the campaign; the
+circuit has \texttt{qubits\ +\ 1} qubits) and \texttt{-\/-depth} (MLAE
+ladder: Grover powers 0, 1, 2, 4, \ldots, 2\^{}(depth−2), 100
+measurements each).
+
+\hypertarget{3-use-it-from-python}{%
+\subsection{3. Use it from Python}\label{3-use-it-from-python}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{import}\NormalTok{ numpy }\ImportTok{as}\NormalTok{ np}
+\ImportTok{from}\NormalTok{ qae\_european }\ImportTok{import}\NormalTok{ Option, LognormalGrid, QuantumPricer, MaximumLikelihoodAE, Ladder, BlackScholes}
+
+\NormalTok{option }\OperatorTok{=}\NormalTok{ Option(spot}\OperatorTok{=}\DecValTok{100}\NormalTok{, strike}\OperatorTok{=}\DecValTok{105}\NormalTok{, rate}\OperatorTok{=}\FloatTok{0.03}\NormalTok{, vol}\OperatorTok{=}\FloatTok{0.2}\NormalTok{, maturity}\OperatorTok{=}\FloatTok{1.0}\NormalTok{)}
+\NormalTok{grid }\OperatorTok{=}\NormalTok{ LognormalGrid(option, n\_qubits}\OperatorTok{=}\DecValTok{5}\NormalTok{)        }\CommentTok{\# lognormal on 32 points, ±4 standard deviations}
+\NormalTok{pricer }\OperatorTok{=}\NormalTok{ QuantumPricer(grid)                    }\CommentTok{\# builds the circuits A and Q}
+
+\BuiltInTok{print}\NormalTok{(pricer.circuit\_a().draw())                }\CommentTok{\# the circuit itself (Qiskit)}
+\BuiltInTok{print}\NormalTok{(BlackScholes.call(option), grid.price(), pricer.price\_exact())}
+
+\NormalTok{ladder }\OperatorTok{=}\NormalTok{ Ladder.exponential(depth}\OperatorTok{=}\DecValTok{8}\NormalTok{, shots}\OperatorTok{=}\DecValTok{100}\NormalTok{)}
+\NormalTok{mlae }\OperatorTok{=}\NormalTok{ MaximumLikelihoodAE(ladder, backend}\OperatorTok{=}\StringTok{"statevector"}\NormalTok{)   }\CommentTok{\# simulates A Q\^{}k in full}
+\BuiltInTok{print}\NormalTok{(mlae.estimate\_prices(pricer, np.random.default\_rng(}\DecValTok{1}\NormalTok{), draws}\OperatorTok{=}\DecValTok{5}\NormalTok{), ladder.calls)}
+\end{Highlighting}
+\end{Shaded}
+
+Two backends give the same measurement probabilities on a noise-free
+simulator:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{"statevector"} simulates every circuit A Qᵏ with Qiskit.
+  Exact, slow for large powers.
+\item
+  \texttt{"born"} uses the identity P(1 after k steps) = sin²((2k +
+  1)θ), with θ from the exact state of A. Fast; used for the campaign.
+  The identity is checked by \texttt{qae-european\ verify} and by the
+  unit tests.
+\end{itemize}
+
+\hypertarget{4-run-the-test-campaign}{%
+\subsection{4. Run the test campaign}\label{4-run-the-test-campaign}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{qae{-}european}\NormalTok{ verify                         }\CommentTok{\# H0{-}b: full simulation of A Q\^{}k on 20 random scenarios}
+\ExtensionTok{qae{-}european}\NormalTok{ campaign }\AttributeTok{{-}{-}processes}\NormalTok{ 2         }\CommentTok{\# 1,848 scenarios, about 25 minutes on 2 cores}
+\end{Highlighting}
+\end{Shaded}
+
+Outputs go to \texttt{results/verification.json},
+\texttt{results/campaign.csv} (one row per scenario, number of qubits
+and budget; columns described at the top of
+\texttt{src/qae\_european/campaign.py}) and
+\texttt{results/run\_info.json} (the commit, parameters and library
+versions of the run). The published results are in the repository.
+
+To check them against the criteria of Document 3 and redraw its figures
+(needs the docs extra, \texttt{pip\ install\ -e\ ".{[}docs{]}"}):
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ExtensionTok{python}\NormalTok{ docs/analyse.py                      }\CommentTok{\# writes results/summary.json and docs/img/*.png}
+\end{Highlighting}
+\end{Shaded}
+
+The campaign is \textbf{resumable}: scenarios already in the CSV are
+skipped. To split it, use \texttt{-\/-start} and \texttt{-\/-stop}
+(scenario indices, 0 to 1,848).
+
+\hypertarget{5-reproduce-a-single-row}{%
+\subsection{5. Reproduce a single row}\label{5-reproduce-a-single-row}}
+
+Every random stream is derived from a fixed seed (20261103) and the
+indices of the scenario, qubits, budget and method. Any row can be
+recomputed on its own:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ImportTok{from}\NormalTok{ qae\_european.campaign }\ImportTok{import}\NormalTok{ scenarios, run\_scenario}
+
+\NormalTok{sc }\OperatorTok{=}\NormalTok{ scenarios()[}\DecValTok{1000}\NormalTok{]                      }\CommentTok{\# moneyness 1.0, maturity 5Y, vol 60\%, rate 0\%}
+\NormalTok{row }\OperatorTok{=}\NormalTok{ run\_scenario(sc, qubits}\OperatorTok{=}\NormalTok{(}\DecValTok{5}\NormalTok{,), depths}\OperatorTok{=}\NormalTok{(}\DecValTok{8}\NormalTok{,))[}\DecValTok{0}\NormalTok{]}
+\BuiltInTok{print}\NormalTok{(row)}
+\end{Highlighting}
+\end{Shaded}
+
+The values must match the corresponding row of
+\texttt{results/campaign.csv} exactly in the frozen environment.
+
+\hypertarget{6-code-layout}{%
+\subsection{6. Code layout}\label{6-code-layout}}
+
+\begin{verbatim}
+src/qae_european/
+  option.py              Option: contract and market inputs, with validation
+  grid.py                LognormalGrid: discretisation on 2^n points (conditional-mean prices)
+  quantum.py             QuantumPricer: circuit A, Grover operator Q, exact probabilities
+  estimation.py          Ladder, MaximumLikelihoodAE
+  benchmarks/            BlackScholes, MonteCarlo (continuous or on the grid), QuasiMonteCarlo (scrambled Sobol)
+  resources.py           circuit size after compilation, power-law fits
+  campaign.py            the scenario grid, the runner, the verification
+  cli.py                 the qae-european command
+tests/test_package.py    unit tests
+docs/                    Documents 1 to 3, figures (make_figures.py), analysis (analyse.py), exports
+results/                 the published campaign: campaign.csv, verification.json, run_info.json, summary.json
+\end{verbatim}
+
+\hypertarget{7-adapt-it-to-another-payoff}{%
+\subsection{7. Adapt it to another
+payoff}\label{7-adapt-it-to-another-payoff}}
+
+The circuit loads a distribution on n qubits, then rotates an objective
+qubit by the normalised payoff at each grid point. To price another
+payoff on the same underlying, change the payoff:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Add a payoff method to \texttt{Option} (or a subclass), e.g. a put:
+  \texttt{max(K\ −\ S,\ 0)}.
+\item
+  \texttt{QuantumPricer} normalises the grid payoffs by their maximum
+  and sets one rotation per point; it needs no change as long as payoffs
+  are non-negative.
+\item
+  Add the closed form, if there is one, as a benchmark, and run the unit
+  tests.
+\end{enumerate}
+
+Path-dependent payoffs (Asian, barrier) need more qubits per time step
+and are outside this kit.
+
+\hypertarget{8-limits}{%
+\subsection{8. Limits}\label{8-limits}}
+
+\begin{itemize}
+\tightlist
+\item
+  \textbf{Simulator only, no noise.} No run on real hardware.
+\item
+  \textbf{Exact loading does not scale.} State preparation and one
+  controlled rotation per grid point both grow exponentially with the
+  number of qubits. Practical pricers need efficient loading, still an
+  open problem.
+\item
+  \textbf{Calls are not run time.} One call of A on a fault-tolerant
+  machine is far slower than one Monte Carlo path on a GPU. The
+  comparison is in number of calls only (see Document 3, section 1.1).
+\item
+  \textbf{Error is scaled by the largest payoff.} The price is read as
+  discount × largest payoff × amplitude, so for wide grids (high
+  volatility, long maturity) a small amplitude error becomes a large
+  price error.
+\end{itemize}
+
+\hypertarget{references}{%
+\subsection{References}\label{references}}
+
+\begin{itemize}
+\tightlist
+\item
+  Suzuki et al., \emph{Amplitude estimation without phase estimation},
+  Quantum Information Processing, 2020.
+  \href{https://arxiv.org/abs/1904.10246}{arXiv:1904.10246}
+\item
+  Stamatopoulos et al., \emph{Option pricing using quantum computers},
+  Quantum, 2020.
+  \href{https://arxiv.org/abs/1905.02666}{arXiv:1905.02666}
+\item
+  Chakrabarti et al., \emph{A threshold for quantum advantage in
+  derivative pricing}, Quantum, 2021.
+  \href{https://arxiv.org/abs/2012.03819}{arXiv:2012.03819}
+\item
+  Stamatopoulos and Zeng, \emph{Derivative pricing using quantum signal
+  processing}, Quantum, 2024.
+  \href{https://arxiv.org/abs/2307.14310}{arXiv:2307.14310}
+\end{itemize}
+
+\end{document}

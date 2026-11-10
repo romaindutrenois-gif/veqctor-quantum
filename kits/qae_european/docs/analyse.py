@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "..", "results")
@@ -39,8 +40,8 @@ def slope(calls, err):
     calls, err = np.asarray(calls, float), np.asarray(err, float)
     if np.any(err <= 0):
         return None, None
-    s, c = np.polyfit(np.log(calls), np.log(err), 1)
-    return float(s), float(c)
+    s, logc = np.polyfit(np.log(calls), np.log(err), 1)
+    return float(s), float(logc)
 
 
 def quart(x):
@@ -135,12 +136,12 @@ def main():
     # ---------- relative efficiency at the largest budget (section 1.8) ----------
     def eff(s, n, comp_err, comp_calls, qae_err):
         rr = [by[(s, n, d)] for d in DEPTHS]
-        sl, c = slope([r[comp_calls] for r in rr], [r[comp_err] for r in rr])
+        sl, logc = slope([r[comp_calls] for r in rr], [r[comp_err] for r in rr])
         top = by[(s, n, LARGEST)]
         eps = top[qae_err]
         if sl is None or sl >= 0 or eps <= 0:
             return None, None
-        n_comp = (eps / c) ** (1.0 / sl)
+        n_comp = float(np.exp((np.log(eps) - logc) / sl))     # calls the comparator needs to reach RMSE eps, on its fitted line
         extrap = n_comp > max(r[comp_calls] for r in rr)
         return n_comp / top["calls_qae"], extrap
 
@@ -195,6 +196,7 @@ def figures(rows, by, scen, meta, in_scope, sq, sm):
         ax.fill_between(calls, q1, q3, color=col, alpha=.15)
     ax.loglog(calls, [0.02 * (c / calls[0]) ** -1 for c in calls], ":", color=GREY, label="slope −1")
     ax.loglog(calls, [0.02 * (c / calls[0]) ** -0.5 for c in calls], "--", color=GREY, label="slope −1/2")
+    ax.set_xticks(calls, [f"{c:,}" for c in calls]); ax.xaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
     ax.set_xlabel("calls"); ax.set_ylabel("RMSE / grid price")
     ax.set_title("n = 5, all in-scope scenarios (median, quartiles)", fontsize=9)
     ax.legend(frameon=False, fontsize=8)
