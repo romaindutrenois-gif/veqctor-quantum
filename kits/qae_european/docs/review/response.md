@@ -1,6 +1,6 @@
 # Response to the independent review
 
-**Review:** independent validation of `kits/qae_european` at commit `3a4193c` (version 1.0.0), 10 November 2026, by an AI reviewer working in a separate project, with no access to the build. The reviewer could not execute the repository's code in its environment. It validated by **independent replication**: its own implementation of the grid, the circuit, the estimator and the benchmarks, written from the documents and compared with the published results. The report (`validation-report-2026-11-10.md`, to be added to this folder once the kit owner approves its publication) and the scorecard it contains refer to that commit, before corrections.
+**Review:** independent validation of `kits/qae_european` at commit `3a4193c` (version 1.0.0), 10 November 2026, by an AI reviewer working in a separate project, with no access to the build. The reviewer could not execute the repository's code in its environment. It validated by **independent replication**: its own implementation of the grid, the circuit, the estimator and the benchmarks, written from the documents and compared with the published results. The report ([`validation-report-2026-11-10.md`](validation-report-2026-11-10.md), published unchanged) and the scorecard it contains refer to that commit, before corrections.
 
 **This document:** what the developer did about each finding, and where. Status: *Done* (corrected and checked), *Done, differently* (the finding is addressed by another route, explained), or *Open* (left to the sign-off).
 
@@ -29,6 +29,7 @@ Where the review gave figures, the developer re-measured them with the kit's own
 
 **Not checked by the review, and still not checked by anyone other than the developer:** the kit's own code run end to end (tests, `verify`, `campaign`, analysis scripts and exports). The reviewer's environment blocked it. The internal review (a separate session working from a fresh clone) did run it, on the second campaign run.
 
-**Left to the sign-off:**
-1. The developer's reading of the limits rule (Document 3, section 2.6), now stated in a and s.
-2. Whether H2-a calls for a follow-up campaign with a different ladder or shot allocation (the review's suggestion; Document 3, section 2.12).
+**Decisions of the kit owner (Romain Dutrenois, 10 November 2026):**
+1. The H3 limit, s = σ√T below 0.8, is accepted, recorded as found after the results.
+2. H2-a stays *Not validated*. This campaign is a result in itself. A follow-up campaign on the estimator (ladder or shot allocation that keeps the low powers informative at small amplitude) is planned separately, with its own pre-registered plan.
+3. The independent review's report is published in this folder.

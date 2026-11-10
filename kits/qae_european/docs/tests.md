@@ -387,9 +387,9 @@ The stated purpose is a reproducible, documented test bench for amplitude estima
   - more than 7 price qubits;
   - negative, path-dependent or multi-asset payoffs.
 
-**For the sign-off to decide:**
-1. Whether to accept the limit of H3 (s below 0.8), found after the results.
-2. Whether H2-a calls for a follow-up campaign, with a ladder or shot allocation that keeps the low powers informative at small amplitude. The 2,000-draw study shows that more draws alone would not help.
+**Decisions of the kit owner (10 November 2026):**
+1. The limit of H3, s = σ√T below 0.8, is **accepted**, recorded as found after the results.
+2. H2-a stays *Not validated*: this campaign is a result in itself. A **follow-up campaign** on the estimator is planned separately, with its own pre-registered plan: a ladder or shot allocation that keeps the low powers informative at small amplitude, possibly iterative amplitude estimation. The 2,000-draw study shows that more draws alone would not help. The rule of section 2.13 will apply to it.
 
 ### 2.12 Reproduction check of this run
 
