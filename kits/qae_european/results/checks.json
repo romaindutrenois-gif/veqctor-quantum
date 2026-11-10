@@ -1,21 +1,52 @@
 {
- "state_preparation": {
+ "loading": {
   "scenario": 1000,
-  "by_qubits": {
-   "5": {
-    "max_abs_prob_error": 1.2602419108276308e-13,
-    "sum_minus_1": -9.547918011776346e-15,
-    "relative_amplitude_error": 4.652305051896844e-14
+  "by_loader": {
+   "explicit loader (kit)": {
+    "5": {
+     "max_abs_prob_error": 6.38378239159465e-15,
+     "sum_minus_1": -6.084022174945858e-14,
+     "rel_amplitude_error_from_loading": 6.140542420648792e-14,
+     "rel_amplitude_error_added_by_rotations": 4.001982840341371e-14,
+     "prob_change_for_1e-15_input_perturbation": 4.0245584642661925e-16
+    },
+    "6": {
+     "max_abs_prob_error": 8.333611578592581e-15,
+     "sum_minus_1": -1.5276668818842154e-13,
+     "rel_amplitude_error_from_loading": 1.5642824666778956e-13,
+     "rel_amplitude_error_added_by_rotations": 5.099118641379359e-14,
+     "prob_change_for_1e-15_input_perturbation": 9.922618282587337e-16
+    },
+    "7": {
+     "max_abs_prob_error": 7.188694084447889e-15,
+     "sum_minus_1": -2.7333690866271354e-13,
+     "rel_amplitude_error_from_loading": 2.7837745480494346e-13,
+     "rel_amplitude_error_added_by_rotations": 3.8038166771423926e-13,
+     "prob_change_for_1e-15_input_perturbation": 5.30825383648903e-16
+    }
    },
-   "6": {
-    "max_abs_prob_error": 3.141950588592124e-11,
-    "sum_minus_1": -1.1856071679972047e-12,
-    "relative_amplitude_error": 4.368244969448318e-12
-   },
-   "7": {
-    "max_abs_prob_error": 6.44542114125457e-10,
-    "sum_minus_1": 2.48334686148155e-12,
-    "relative_amplitude_error": 5.6668042592985525e-11
+   "Qiskit StatePreparation": {
+    "5": {
+     "max_abs_prob_error": 1.2602419108276308e-13,
+     "sum_minus_1": -9.547918011776346e-15,
+     "rel_amplitude_error_from_loading": 8.379151571964746e-14,
+     "rel_amplitude_error_added_by_rotations": 3.726846520067902e-14,
+     "prob_change_for_1e-15_input_perturbation": 1.9566293030237603e-13
+    },
+    "6": {
+     "max_abs_prob_error": 3.141950588592124e-11,
+     "sum_minus_1": -1.1856071679972047e-12,
+     "rel_amplitude_error_from_loading": 4.316148283058073e-12,
+     "rel_amplitude_error_added_by_rotations": 5.2096686390244407e-14,
+     "prob_change_for_1e-15_input_perturbation": 8.463188483354145e-11
+    },
+    "7": {
+     "max_abs_prob_error": 6.44542114125457e-10,
+     "sum_minus_1": 2.48334686148155e-12,
+     "rel_amplitude_error_from_loading": 5.629634213488059e-11,
+     "rel_amplitude_error_added_by_rotations": 3.717004581049375e-13,
+     "prob_change_for_1e-15_input_perturbation": 2.711319259385281e-10
+    }
    }
   }
  },

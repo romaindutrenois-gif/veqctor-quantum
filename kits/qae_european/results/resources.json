@@ -1,0 +1,106 @@
+{
+ "K/S 1.05, 1Y, 20%, r 1%": {
+  "scenario": 1115,
+  "grid_price": 6.29234748480897,
+  "amplitude": 0.05579396074312751,
+  "circuit": {
+   "A": {
+    "qubits": 8,
+    "cx": 10164,
+    "depth": 19461
+   },
+   "Q": {
+    "qubits": 8,
+    "cx": 20498,
+    "depth": 39064
+   }
+  },
+  "targets": {
+   "0.01": {
+    "slope": -0.9247485282449965,
+    "calls_fitted": 7596.554844657266,
+    "depth": 7,
+    "calls_ladder": 13300,
+    "largest_power": 32,
+    "cx_deepest_circuit": 666100,
+    "cx_executed": 136252200,
+    "extrapolated": false,
+    "mc_grid_paths": 47172.301544284266
+   },
+   "0.001": {
+    "slope": -0.9247485282449965,
+    "calls_fitted": 91620.30703269971,
+    "depth": 10,
+    "calls_ladder": 103200,
+    "largest_power": 256,
+    "cx_deepest_circuit": 5257652,
+    "cx_executed": 1057611800,
+    "extrapolated": true,
+    "mc_grid_paths": 7553099.092618723
+   },
+   "0.0001": {
+    "slope": -0.9247485282449965,
+    "calls_fitted": 1105011.5259379642,
+    "depth": 14,
+    "calls_ladder": 1639600,
+    "largest_power": 4096,
+    "cx_deepest_circuit": 83969972,
+    "cx_executed": 16804141400,
+    "extrapolated": true,
+    "mc_grid_paths": 1209381438.5834277
+   }
+  }
+ },
+ "scenario 1000: at the money, 5Y, 60%, r 0%": {
+  "scenario": 1000,
+  "grid_price": 49.37424350476672,
+  "amplitude": 0.0059947526463948195,
+  "circuit": {
+   "A": {
+    "qubits": 8,
+    "cx": 9684,
+    "depth": 18321
+   },
+   "Q": {
+    "qubits": 8,
+    "cx": 19538,
+    "depth": 36784
+   }
+  },
+  "targets": {
+   "0.01": {
+    "slope": -0.9595992819839553,
+    "calls_fitted": 22142.48094725729,
+    "depth": 8,
+    "calls_ladder": 26200,
+    "largest_power": 64,
+    "cx_deepest_circuit": 1260116,
+    "cx_executed": 255879800,
+    "extrapolated": false,
+    "mc_grid_paths": 287053.81653427123
+   },
+   "0.001": {
+    "slope": -0.9595992819839553,
+    "calls_fitted": 243965.22988964687,
+    "depth": 12,
+    "calls_ladder": 410600,
+    "largest_power": 1024,
+    "cx_deepest_circuit": 20016596,
+    "cx_executed": 4011049400,
+    "extrapolated": true,
+    "mc_grid_paths": 63381914.96320634
+   },
+   "0.0001": {
+    "slope": -0.9595992819839553,
+    "calls_fitted": 2688002.0146288383,
+    "depth": 15,
+    "calls_ladder": 3278100,
+    "largest_power": 8192,
+    "cx_deepest_circuit": 160064980,
+    "cx_executed": 32023631400,
+    "extrapolated": true,
+    "mc_grid_paths": 13994822270.2815
+   }
+  }
+ }
+}
