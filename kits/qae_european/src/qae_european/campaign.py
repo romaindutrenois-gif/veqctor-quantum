@@ -13,12 +13,19 @@ For each (scenario, price qubits, budget) the runner records:
   grid_price          exact grid price (target of the circuit and of grid Monte Carlo)
   circuit_price       price from the exact statevector amplitude of A (must equal grid_price)
   worthless           all grid points out of the money (circuit price is exactly 0)
+  amplitude           a = P(objective = 1) after A, exact (grid price / (discount * largest grid payoff))
+  log_std             s = vol * sqrt(maturity), the standard deviation of ln S_T
   calls_qae           applications of A used by amplitude estimation
+  qae_mean            mean of the amplitude-estimation prices over the draws
   qae_rmse_grid       RMS error of amplitude estimation against grid_price over the draws
   qae_rmse_bs         RMS error of amplitude estimation against bs
   qae_medae_grid      median absolute error of amplitude estimation against grid_price (robust to rare large errors)
   qae_mode_errors     share of draws where the estimated theta is on the wrong mode of the likelihood:
                       |theta_hat - theta| > pi / (2 m_max), m_max = 2 k_max + 1 (half the period of the highest power)
+  qae_theta_rmse_crb  RMS error on theta over the draws, divided by the Cramer-Rao bound
+                      1 / (2 sqrt(shots * sum_k (2k+1)^2)); about 1 for an efficient estimator
+  qae_beyond_4crb     share of draws with |theta_hat - theta| > 4 Cramer-Rao standard deviations (large errors,
+                      including those that stay within one lobe and escape qae_mode_errors)
   mc_rmse_bs          RMS error of plain Monte Carlo (continuous) against bs, same number of calls
   mcgrid_rmse_grid    RMS error of plain Monte Carlo on the grid against grid_price, same number of calls
   mcgrid_medae_grid   median absolute error of plain Monte Carlo on the grid against grid_price
@@ -105,23 +112,30 @@ def run_scenario(sc: Scenario, qubits=QUBITS, depths=DEPTHS, draws=DRAWS) -> lis
         for d in depths:
             ladder = Ladder.exponential(d, SHOTS)
             mlae = MaximumLikelihoodAE(ladder, "born")
+            m = np.array([2 * k + 1 for k in ladder.powers])
+            crb = 1.0 / (2.0 * np.sqrt(SHOTS * np.sum(m ** 2)))
             if pricer.worthless:
-                est, mode_err = np.zeros(draws), 0.0
+                est, mode_err, rmse_crb, beyond = np.zeros(draws), 0.0, 0.0, 0.0
             else:
                 hits = mlae.draw_hits(mlae.probabilities(pricer), rng_for(sc.index, n, d, "qae"), draws)
                 th = mlae.estimate_theta(hits)
                 est = np.atleast_1d(pricer.price_from_amplitude(np.sin(th) ** 2))
                 m_max = 2 * max(ladder.powers) + 1
                 mode_err = float(np.mean(np.abs(th - pricer.theta()) > np.pi / (2 * m_max)))
+                dth = th - pricer.theta()
+                rmse_crb = float(np.sqrt(np.mean(dth ** 2)) / crb)
+                beyond = float(np.mean(np.abs(dth) > 4 * crb))
             r_g = rng_for(sc.index, n, d, "mcgrid")
             mcgs = [mcg.price(o, ladder.calls, r_g).value for _ in range(draws)]
             calls, mc_rmse, qmc_rmse, qmc_calls = per_budget[d]
             rows.append(dict(
                 scenario=sc.index, moneyness=sc.moneyness, maturity=sc.maturity_label, vol=sc.vol, rate=sc.rate,
                 qubits=n, depth=d, bs=bs, grid_price=gp, circuit_price=cp, worthless=int(pricer.worthless),
+                amplitude=0.0 if pricer.worthless else pricer.amplitude(), log_std=o.log_std,
                 calls_qae=ladder.calls, qae_mean=float(np.mean(est)),
                 qae_rmse_grid=_rmse(est, gp), qae_rmse_bs=_rmse(est, bs),
                 qae_medae_grid=_medae(est, gp), qae_mode_errors=mode_err,
+                qae_theta_rmse_crb=rmse_crb, qae_beyond_4crb=beyond,
                 mc_rmse_bs=mc_rmse, mcgrid_rmse_grid=_rmse(mcgs, gp), mcgrid_medae_grid=_medae(mcgs, gp),
                 qmc_rmse_bs=qmc_rmse, calls_qmc=qmc_calls))
     return rows

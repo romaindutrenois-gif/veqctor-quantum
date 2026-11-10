@@ -9,10 +9,45 @@ Price from the amplitude: price = discount * payoff_max * a.
 """
 import numpy as np
 from qiskit import QuantumCircuit
-from qiskit.circuit.library import StatePreparation, RYGate
+from qiskit.circuit.library import RYGate
 from qiskit.quantum_info import Statevector
 
 from .grid import LognormalGrid
+
+
+def load_distribution(probs) -> QuantumCircuit:
+    """Circuit preparing sum_i sqrt(p_i) |i> on n = log2(len(probs)) qubits (qubit 0 = least significant bit).
+
+    A binary tree of controlled RY rotations (Grover and Rudolph, 2002), built explicitly rather than by
+    Qiskit's generic StatePreparation. Level l (l = 0 .. n-1) rotates qubit n-1-l, controlled on the l
+    qubits above it being in each possible state v: the rotation angle 2 arcsin(sqrt(P1 / P)) splits the
+    probability mass P of the block of indices with those top bits into its upper half P1 and lower half.
+    Uses 2^n - 1 rotations; every angle is computed directly from the target probabilities, so the loaded
+    probabilities match them to rounding error (about 1e-14 at 7 qubits).
+    """
+    probs = np.asarray(probs, dtype=float)
+    n = int(round(np.log2(len(probs))))
+    if len(probs) != 2 ** n or np.any(probs < 0) or not np.isclose(probs.sum(), 1.0, atol=1e-12):
+        raise ValueError("probs must be 2^n non-negative numbers summing to 1")
+    qc = QuantumCircuit(n, name="load")
+    for level in range(n):
+        target = n - 1 - level
+        width = 2 ** (n - level)                       # indices sharing the same top `level` bits
+        for v in range(2 ** level):
+            block = probs[v * width:(v + 1) * width]   # contiguous: top bits = v
+            total = block.sum()
+            if total <= 0:
+                continue
+            upper = block[width // 2:].sum()            # bit `target` = 1
+            theta = 2.0 * np.arcsin(np.sqrt(min(max(upper / total, 0.0), 1.0)))
+            if theta == 0.0:
+                continue
+            if level == 0:
+                qc.ry(theta, target)
+            else:
+                controls = list(range(n - level, n))   # control j is qubit n-level+j, i.e. bit j of v
+                qc.append(RYGate(theta).control(level, ctrl_state=v), controls + [target])
+    return qc
 
 
 class QuantumPricer:
@@ -33,6 +68,9 @@ class QuantumPricer:
         self.grid = grid
         self.n = grid.n_qubits
         pay = grid.payoffs()
+        if np.any(pay < 0):
+            raise ValueError("payoffs must be non-negative on the grid: the circuit encodes f_i = payoff_i / max payoff "
+                             "as a probability (shift the payoff by a constant to price it)")
         self.payoff_max = float(pay.max())
         self.f = pay / self.payoff_max if self.payoff_max > 0 else np.zeros_like(pay)
         self._a = None
@@ -47,7 +85,7 @@ class QuantumPricer:
     def circuit_a(self) -> QuantumCircuit:
         """Circuit A on n + 1 qubits.
 
-        Block 1: StatePreparation loads sum_i sqrt(p_i) |i> on the price register.
+        Block 1: load_distribution prepares sum_i sqrt(p_i) |i> on the price register.
         Block 2: for each grid point i with f_i > 0, an RY(theta_i) on the objective qubit,
                  controlled on the price register being exactly |i>, with theta_i = 2 arcsin(sqrt(f_i)).
                  Control on |i> is implemented by X gates on the qubits where bit i is 0, before and after.
@@ -56,7 +94,7 @@ class QuantumPricer:
             return self._a
         n = self.n
         qc = QuantumCircuit(n + 1, name="A")
-        qc.append(StatePreparation(np.sqrt(self.grid.probs)), range(n))
+        qc.compose(load_distribution(self.grid.probs), range(n), inplace=True)
         for i, fi in enumerate(self.f):
             if fi <= 0:
                 continue

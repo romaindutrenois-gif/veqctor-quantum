@@ -14,6 +14,7 @@ Cost: one measurement after k steps calls A once and Q k times, i.e. 2k + 1 appl
 (Q contains A and its inverse). Total calls = shots * sum_k (2k + 1).
 """
 from dataclasses import dataclass
+import numbers
 import numpy as np
 from scipy.optimize import minimize_scalar
 
@@ -26,6 +27,14 @@ class Ladder:
     """
     powers: tuple
     shots: int = 100
+
+    def __post_init__(self):
+        p = tuple(self.powers)
+        if not p or any(isinstance(k, bool) or not isinstance(k, numbers.Integral) or k < 0 for k in p) or len(set(p)) != len(p):
+            raise ValueError("powers must be a non-empty tuple of distinct non-negative integers")
+        if isinstance(self.shots, bool) or not isinstance(self.shots, numbers.Integral) or self.shots < 1:
+            raise ValueError("shots must be a positive integer")
+        object.__setattr__(self, "powers", tuple(int(k) for k in p))
 
     @classmethod
     def exponential(cls, depth: int, shots: int = 100) -> "Ladder":

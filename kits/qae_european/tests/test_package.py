@@ -143,3 +143,44 @@ def test_campaign_resume_refuses_incomplete_scenarios(tmp_path):
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
     with pytest.raises(RuntimeError):
         campaign.run(str(path), 0, 1, progress=False)
+
+
+# ---------- added after the independent review ----------
+
+@pytest.mark.parametrize("n", [3, 5, 7])
+def test_loader_is_exact_to_rounding(n):
+    """The explicit loader prepares the grid probabilities to rounding error, including at 7 qubits."""
+    from qiskit.quantum_info import Statevector
+    from qae_european.quantum import load_distribution
+    g = LognormalGrid(Option(100, 100, 0.0, 0.6, 5.0), n)
+    assert np.abs(Statevector(load_distribution(g.probs)).probabilities() - g.probs).max() < 1e-13
+
+
+def test_circuit_price_matches_grid_at_seven_qubits():
+    """H0-a at the largest size of the campaign, on the widest grid: within the original 1e-9."""
+    g = LognormalGrid(Option(100, 100, 0.0, 0.8, 5.0), 7)
+    assert abs(QuantumPricer(g).price_exact() - g.price()) <= 1e-9
+
+
+def test_negative_payoffs_are_rejected():
+    from dataclasses import dataclass
+
+    @dataclass(frozen=True)
+    class Forward(Option):
+        def payoff(self, prices):
+            return np.asarray(prices, dtype=float) - self.strike
+
+    with pytest.raises(ValueError):
+        QuantumPricer(LognormalGrid(Forward(100, 100, 0.0, 0.2, 1.0), 3))
+
+
+@pytest.mark.parametrize("powers, shots", [((), 100), ((0, -1), 100), ((0, 1, 1), 100), ((0, 1), 0), ((0, 1.5), 100)])
+def test_ladder_rejects_bad_inputs(powers, shots):
+    with pytest.raises(ValueError):
+        Ladder(powers, shots)
+
+
+@pytest.mark.parametrize("width", [float("nan"), float("inf"), 0.0, -1.0])
+def test_grid_rejects_bad_width(width):
+    with pytest.raises(ValueError):
+        LognormalGrid(Option(), 3, width)
