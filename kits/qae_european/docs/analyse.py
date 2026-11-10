@@ -21,7 +21,8 @@ INK, BLUE, AMBER, GREEN, GREY = "#1b2a41", "#3b5bdb", "#d08a1f", "#2f9e44", "#8a
 plt.rcParams.update({"font.size": 10, "axes.spines.top": False, "axes.spines.right": False})
 DEPTHS, QUBITS, LARGEST = (4, 5, 6, 7, 8), (3, 4, 5, 6, 7), 8
 MATS = ["1W", "2W", "1M", "3M", "6M", "1Y", "3Y", "5Y"]
-FLOATS = ("moneyness", "vol", "rate", "bs", "grid_price", "circuit_price", "qae_mean", "qae_rmse_grid", "qae_rmse_bs",
+FLOATS = ("moneyness", "vol", "rate", "bs", "grid_price", "circuit_price", "amplitude", "log_std",
+          "qae_theta_rmse_crb", "qae_beyond_4crb", "qae_mean", "qae_rmse_grid", "qae_rmse_bs",
           "qae_medae_grid", "qae_mode_errors", "mc_rmse_bs", "mcgrid_rmse_grid", "mcgrid_medae_grid", "qmc_rmse_bs")
 INTS = ("scenario", "qubits", "depth", "worthless", "calls_qae", "calls_qmc")
 
@@ -148,6 +149,16 @@ def main():
     # ---------- H4 (descriptive: n = 7, ratio RMSE against BS, QAE / QMC, per budget) ----------
     out["H4_ratio_qae_over_qmc"] = {d: quart(by[(s, 7, d)]["qae_rmse_bs"] / by[(s, 7, d)]["qmc_rmse_bs"]
                                          for s in h3 if by[(s, 7, d)]["qmc_rmse_bs"] > 0) for d in DEPTHS}
+    qs = {}
+    for s_ in scen:
+        if s_ in negligible:
+            continue
+        rr = [by[(s_, 7, d)] for d in DEPTHS]
+        qs[s_], _ = slope([r["calls_qmc"] for r in rr], [r["qmc_rmse_bs"] for r in rr])
+    out["qmc_slopes"] = {"all": quart(qs.values()),
+                         "by_log_std": {lab: quart(v for k, v in qs.items() if lo <= meta[k]["log_std"] < hi)
+                                        for lab, lo, hi in (("s < 0.8", 0, 0.8 - 1e-12), ("0.8 <= s < 1.3", 0.8 - 1e-12, 1.3), ("s >= 1.3", 1.3, 99))},
+                         "scenario_1000": qs.get(1000)}
     out["H4_qae_wins"] = {d: sum(1 for s in h3 if by[(s, 7, d)]["qae_rmse_bs"] < by[(s, 7, d)]["qmc_rmse_bs"]) for d in DEPTHS}
     out["smallest_relative_rmse_qae"] = min(by[(s, n, d)]["qae_rmse_grid"] / by[(s, n, d)]["grid_price"]
                                            for s in scen for n in QUBITS for d in DEPTHS if in_scope(s, n))
@@ -207,6 +218,57 @@ def main():
         t: {"qae": quart(by[(s, 5, LARGEST)]["qae_rmse_grid"] / by[(s, 5, LARGEST)]["grid_price"] for s in scen if in_scope(s, 5) and meta[s]["maturity"] == t),
             "mc_grid": quart(by[(s, 5, LARGEST)]["mcgrid_rmse_grid"] / by[(s, 5, LARGEST)]["grid_price"] for s in scen if in_scope(s, 5) and meta[s]["maturity"] == t)}
         for t in MATS}
+
+    # ---------- breakdowns by the drivers named in the independent review (descriptive, post hoc) ----------
+    # Bins are those proposed in the review (amplitude a: 0.01, 0.03; s = vol * sqrt(T): 0.8, 1.3), plus a finer
+    # s grid to test "pass in every cell" (finding m8). None of these is a pre-registered criterion.
+    A_BINS = (("a < 0.01", 0, 0.01), ("0.01 <= a < 0.03", 0.01, 0.03), ("a >= 0.03", 0.03, 2))
+    S_BINS = (("s < 0.8", 0, 0.8 - 1e-12), ("0.8 <= s < 1.3", 0.8 - 1e-12, 1.3), ("s >= 1.3", 1.3, 99))
+    S_FINE = tuple((f"{lo:.1f} <= s < {lo + 0.2:.1f}", lo - 1e-12, lo + 0.2 - 1e-12) for lo in np.arange(0, 2.0, 0.2))
+    inbin = lambda x, lo, hi: lo <= x < hi
+    h1ok = lambda s, n: by[(s, n, LARGEST)]["qae_rmse_grid"] < by[(s, n, LARGEST)]["mcgrid_rmse_grid"]
+    h3ok = lambda s: by[(s, 7, LARGEST)]["qae_rmse_bs"] <= tol(by[(s, 7, LARGEST)])
+    out["by_amplitude"] = {
+        "H1": {lab: share(h1ok(s, n) for s, n in h1 if inbin(by[(s, n, LARGEST)]["amplitude"], lo, hi)) for lab, lo, hi in A_BINS},
+        "H2a": {lab: share(ok2[s] for s in s5 if inbin(by[(s, 5, LARGEST)]["amplitude"], lo, hi)) for lab, lo, hi in A_BINS},
+        "pairs": {lab: sum(1 for s, n in h1 if inbin(by[(s, n, LARGEST)]["amplitude"], lo, hi)) for lab, lo, hi in A_BINS},
+    }
+    out["by_log_std"] = {
+        "H1": {lab: share(h1ok(s, n) for s, n in h1 if inbin(meta[s]["log_std"], lo, hi)) for lab, lo, hi in S_BINS},
+        "H3": {lab: share(h3ok(s) for s in h3 if inbin(meta[s]["log_std"], lo, hi)) for lab, lo, hi in S_BINS},
+        "H3_fine": {lab: share(h3ok(s) for s in h3 if inbin(meta[s]["log_std"], lo, hi)) for lab, lo, hi in S_FINE},
+        "H3_bias_alone_fails": {lab: sum(1 for s in h3 if inbin(meta[s]["log_std"], lo, hi) and not h3ok(s)
+                                         and abs(by[(s, 7, LARGEST)]["grid_price"] - meta[s]["bs"]) > tol(by[(s, 7, LARGEST)]))
+                                for lab, lo, hi in S_BINS},
+    }
+    # H2-a on the median absolute error, and at every number of qubits (finding n1)
+    med_ok = []
+    for s in s5:
+        rr = [by[(s, 5, d)] for d in DEPTHS]
+        a, _ = slope([r["calls_qae"] for r in rr], [r["qae_medae_grid"] for r in rr])
+        med_ok.append(a is not None and a <= -0.8)
+    out["H2a_on_median_abs_error"] = share(med_ok)
+    allq = {}
+    for n in QUBITS:
+        fl = []
+        for s in scen:
+            if not in_scope(s, n):
+                continue
+            rr = [by[(s, n, d)] for d in DEPTHS]
+            a, _ = slope([r["calls_qae"] for r in rr], [r["qae_rmse_grid"] for r in rr])
+            fl.append(a is not None and a <= -0.8)
+        allq[n] = share(fl)
+    out["H2a_by_qubits"] = allq
+    # efficiency of the estimator against the Cramer-Rao bound (finding M1)
+    out["cramer_rao"] = {
+        "rmse_over_crb_largest_by_qubits": {n: quart(by[(s, n, LARGEST)]["qae_theta_rmse_crb"] for s in scen if in_scope(s, n)) for n in QUBITS},
+        "share_configs_rmse_over_1.5_crb_largest_n5": share(by[(s, 5, LARGEST)]["qae_theta_rmse_crb"] > 1.5 for s in s5),
+        "share_of_draws_beyond_4crb_by_depth": {d: float(np.mean([by[(s, n, d)]["qae_beyond_4crb"] for s in scen for n in QUBITS if in_scope(s, n)])) for d in DEPTHS},
+        "configs_with_draws_beyond_4crb_by_depth": {d: share(by[(s, n, d)]["qae_beyond_4crb"] > 0 for s in scen for n in QUBITS if in_scope(s, n)) for d in DEPTHS},
+        "share_of_draws_beyond_4crb_largest_by_amplitude": {lab: float(np.mean([by[(s, n, LARGEST)]["qae_beyond_4crb"] for s, n in h1
+                                                                                 if inbin(by[(s, n, LARGEST)]["amplitude"], lo, hi)])) for lab, lo, hi in A_BINS},
+        "worst_config_beyond_4crb": max(((by[(s, n, d)]["qae_beyond_4crb"], s, n, d) for s in scen for n in QUBITS for d in DEPTHS if in_scope(s, n))),
+    }
 
     json.dump(out, open(os.path.join(RES, "summary.json"), "w"), indent=1, default=str)
     figures(rows, by, scen, meta, in_scope, sq, sm)

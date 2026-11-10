@@ -65,6 +65,9 @@ class QuantumPricer:
     """
 
     def __init__(self, grid: LognormalGrid):
+        if grid.n_qubits > 10:
+            raise ValueError("at most 10 price qubits: the circuit uses one controlled rotation per grid point "
+                             "and 2^n - 1 more to load the distribution (the grid itself goes up to 16)")
         self.grid = grid
         self.n = grid.n_qubits
         pay = grid.payoffs()

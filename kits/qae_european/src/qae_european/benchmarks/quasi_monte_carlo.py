@@ -1,4 +1,5 @@
-"""Quasi-Monte Carlo with a scrambled Sobol sequence (Owen scrambling, scipy.stats.qmc.Sobol).
+"""Quasi-Monte Carlo with a scrambled Sobol sequence (scipy.stats.qmc.Sobol, scramble=True: a random linear
+matrix scramble with a random digital shift, not Owen's nested scrambling).
 
 One-dimensional problem: u_j in (0,1) from the Sobol sequence, Z_j = Phi^{-1}(u_j), then S_T as in plain
 Monte Carlo. The number of points is the largest power of two not above the budget (Sobol's balance

@@ -30,9 +30,24 @@ A circuit on n qubits holds 2ⁿ basis states, so the distribution is discretise
 
    x_i = E[S_T | S_T in bin i] = e^(μ + s²/2) · [Φ(z_{i+1} − s) − Φ(z_i − s)] / p_i.
 
-   Using conditional means rather than bin midpoints makes the discretised forward match the true forward, up to the truncated mass.
+   Using conditional means rather than bin midpoints keeps, exactly, the part of the forward carried by the range. The part carried by the truncated tails is lost: the grid forward falls short of the true forward by a relative
 
-The **grid price** is P_grid = e^(−rT) Σ_i p_i max(x_i − K, 0). It is the exact target of the circuit. Its gap to Black-Scholes is the **discretisation bias**, which depends only on n, w and the option, not on any sampling. The bias falls as n grows.
+   1 − [Φ(w − s) − Φ(−w − s)] / [1 − 2Φ(−w)],
+
+   which is negligible for small s (0.002% for the reference option) but not for large s = σ√T: 0.39% at s = 1.34 (5 years, 60%) and 1.3% at s = 1.79 (5 years, 80%). For large s, most of the forward sits in the far upper tail of the distribution of ln S_T.
+
+The **grid price** is P_grid = e^(−rT) Σ_i p_i max(x_i − K, 0). It is the exact target of the circuit. Its gap to Black-Scholes is the **discretisation bias**, which depends only on n, w and the option, not on any sampling.
+
+**The bias has a floor.** As n grows, the bias falls, but only down to the **truncation bias**, set by w and s. Adding qubits does not remove it. Relative bias against Black-Scholes (`docs/truncation.py`, `results/truncation.json`):
+
+| Option | s = σ√T | w = 4, n = 7 | w = 4, n = 14 (floor) | w = 6, n = 7 | w = 6, n = 14 |
+| --- | --- | --- | --- | --- | --- |
+| Reference option (K 105, 1Y, 20%) | 0.20 | −0.052% | −0.050% | −0.002% | −0.000% |
+| At the money, 1Y, 80% | 0.80 | −0.23% | −0.21% | −0.030% | −0.000% |
+| At the money, 5Y, 60% (scenario 1000) | 1.34 | −0.79% | −0.78% | −0.009% | −0.000% |
+| At the money, 5Y, 80% | 1.79 | −2.15% | −2.14% | −0.073% | −0.002% |
+
+**The width trade-off.** A wider grid removes the floor, but it raises the largest grid payoff g_max and therefore lowers the amplitude a the circuit must estimate (section 4). At n = 7, going from w = 4 to w = 6 multiplies g_max by about 2 for the reference option, 5 for the 1-year option at 80% and 14 to 35 for the 5-year options, and divides a by similar factors. The statistical error of amplitude estimation grows accordingly (section 11). A wider grid also needs more qubits for the same resolution: at n = 5, the reference option's bias is −0.23% at w = 4 but −1.8% at w = 6. The kit keeps w = 4 for every scenario; Document 3 states its results within that choice.
 
 ![The discretised distribution for 3 and 5 price qubits](img/discretisation.png)
 
@@ -45,7 +60,18 @@ The circuit acts on **n + 1 qubits**:
 - qubits 0 to n − 1: the **price register**. Basis state |i⟩ stands for grid point i, with qubit 0 the least significant bit (Qiskit's convention).
 - qubit n: the **objective qubit**.
 
-**Block 1: load the distribution.** `StatePreparation` prepares Σ_i √p_i |i⟩ on the price register. This is exact loading: Qiskit synthesises a circuit for an arbitrary state.
+**Block 1: load the distribution.** `load_distribution` prepares Σ_i √p_i |i⟩ on the price register, with a binary tree of controlled RY rotations (Grover and Rudolph, 2002):
+
+- Level 0 rotates the most significant qubit by 2 arcsin(√P₁), where P₁ is the probability that the index is in the upper half of the grid.
+- Level l rotates qubit n − 1 − l, controlled on the l qubits above it, once for each of their 2ˡ states v. The angle 2 arcsin(√(P₁/P)) splits the probability P of the block of indices beginning with v into its upper half P₁ and its lower half.
+
+That is 2ⁿ − 1 rotations, every angle computed directly from the grid probabilities. The loaded probabilities match the target to rounding error, 7·10⁻¹⁵ at n = 7 (`docs/checks.py`).
+
+*History.* Up to the second campaign run, the kit used Qiskit's generic `StatePreparation`. Its synthesis is ill-conditioned:
+- at n = 7, it loaded the probabilities with an error of 6·10⁻¹⁰;
+- a relative change of 10⁻¹⁵ in its input moved its output by 3·10⁻¹⁰.
+
+That made the H0-a criterion of Document 3 fail. The explicit loader replaced it on the recommendation of the independent review (Document 3, sections 1.9 and 2.4).
 
 **Block 2: encode the payoff.** With g_i = max(x_i − K, 0) and g_max = max_i g_i, the normalised payoffs are f_i = g_i / g_max, in [0, 1]. For each grid point with f_i > 0, a rotation RY(θ_i) with θ_i = 2 arcsin(√f_i) is applied to the objective qubit, controlled on the price register being exactly |i⟩. The control on |i⟩ is built with X gates on the price qubits where bit i is 0, before and after a rotation controlled on all n price qubits. Grid points out of the money get no rotation.
 
@@ -152,9 +178,11 @@ At depth 8, one measurement at k = 64 applies Q 64 times: about 85,000 CNOTs for
 | --- | --- | --- | --- |
 | spot, strike, vol, maturity | `Option` | float > 0 | 100, 105, 0.20, 1.0 |
 | rate | `Option` | float, may be negative | 0.03 |
-| n_qubits | `LognormalGrid` | integer, 1 to 16 | — (3 to 7 in the campaign) |
-| width | `LognormalGrid` | float > 0, standard deviations | 4.0 |
-| depth, shots | `Ladder.exponential` | integer ≥ 1 | — , 100 |
+| n_qubits | `LognormalGrid` / `QuantumPricer` | integer, 1 to 16 for the grid; at most 10 for the circuit | — (3 to 7 in the campaign; untested above 7) |
+| width | `LognormalGrid` | finite float > 0, standard deviations | 4.0 |
+| depth, shots | `Ladder.exponential` | depth: integer, 1 to 16; shots: integer ≥ 1 | — , 100 |
+| powers, shots | `Ladder` (custom ladder) | distinct non-negative integers; shots ≥ 1 | — |
+| payoff | `Option.payoff` (override in a subclass) | must be non-negative on the grid; `QuantumPricer` rejects negative payoffs | call payoff |
 | backend | `MaximumLikelihoodAE` | `"born"` or `"statevector"` | `"born"` |
 | seed / rng | all random methods | `numpy.random.Generator` | — |
 
@@ -185,9 +213,10 @@ Invalid inputs raise `ValueError`. The kit uses **no external data**: every inpu
 - The verification draws its 20 scenarios with the same master seed.
 - The transpiler in section 8 uses seed 0.
 
-**Determinism.** In the frozen environment, results are bit-for-bit reproducible:
+**Determinism.** In the frozen environment, on the same machine type, results are bit-for-bit reproducible. This was checked by recomputing rows on their own (user guide, section 5) and by the internal review from a fresh clone.
 - **Parallel runs:** they don't change any value. Rows may appear in a different order in the CSV, because each scenario's streams depend only on its own indices.
-- **Other library versions:** they may change the last digits. The order of random draws is fixed by NumPy's `Generator` and SciPy's Sobol implementation, which are stable within a major version but not guaranteed across them.
+- **Other library versions or processors:** they may change the last digits. The order of random draws is fixed by NumPy's `Generator` and SciPy's Sobol implementation, which are stable within a major version but not guaranteed across them. `circuit_price` depends on how Qiskit decomposes the multi-controlled rotations. With the explicit loader the computation is well conditioned: a relative perturbation of 10⁻¹⁵ in the input moves the loaded probabilities by less than 10⁻¹⁵ (`docs/checks.py`). Differences are therefore expected at the 10⁻¹² level, not above.
+- **Independent replication:** the independent review rebuilt the grid, the circuit, the estimator and the benchmarks from these documents, with its own code, and reproduced the published columns of the second campaign run to rounding (Document 3, section 1.9). The current results (third run) have not been replicated independently.
 
 **Commands** (from `kits/qae_european`):
 
@@ -203,7 +232,7 @@ python docs/checks.py                          # results/checks.json: state-prep
 ## 11. Limitations
 
 - **Exact loading does not scale** (section 8). The kit demonstrates the method, not a practical pricer.
-- **Numerical precision of the synthesis.** Qiskit's synthesis of the state preparation adds a floating-point error that grows with the number of qubits: about 10⁻¹³ at n = 5, 10⁻¹¹ at n = 6 and 10⁻⁹ to 10⁻¹⁰ at n = 7 on the loaded probabilities (`docs/checks.py`). The circuit price then matches the grid price to a relative 10⁻⁸, not to machine precision. This is far below any statistical error, but it matters for exact-equality tests (Document 3, section 2.4).
+- **Numerical precision.** With the explicit loader (section 4), the circuit price matches the grid price to a relative 10⁻¹² at n = 7, from rounding in the loader and in the decomposition of the multi-controlled rotations. A generic state-preparation routine can be far less accurate: Qiskit's `StatePreparation`, used by earlier versions of the kit, reached 6·10⁻¹⁰ on the loaded probabilities at n = 7 (`docs/checks.py`).
 - **Noise-free simulation.** No hardware noise and no error mitigation. Real hardware would add errors that grow with circuit depth.
 - **The error is scaled by the largest payoff.** The price is read as e^(−rT) g_max a. With high volatility or long maturity, g_max is far above the price: on the 5-year, 60%-volatility at-the-money scenario, g_max ≈ 7,100 for a price of about 49. The amplitude a is then small, and its error is magnified in the price. A narrower `width` reduces g_max but increases the truncation bias. The default, 4 standard deviations, is a common choice and is not tuned per scenario.
 - **Mode errors of MLAE** (section 6).

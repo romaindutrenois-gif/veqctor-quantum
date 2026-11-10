@@ -21,7 +21,7 @@ TAIL = """
 | Sobol points | largest power of two not above the budget | `quasi_monte_carlo.py` |
 | Repetitions per configuration | 50, independent | `campaign.DRAWS` |
 | Seeds | master seed 20261103; one stream per (scenario, qubits, depth, method) through `numpy.random.SeedSequence` | `campaign.rng_for` |
-| Variance reduction | none in Monte Carlo; Owen scrambling in quasi-Monte Carlo | section 4 |
+| Variance reduction | none in Monte Carlo; random scrambling (linear matrix scramble and digital shift) in quasi-Monte Carlo | section 4 |
 | Grid for Monte Carlo on the grid | the circuit's own `LognormalGrid(option, n)`, width 4 standard deviations | `monte_carlo.py`, `grid.py` |
 
 Continuous Monte Carlo and quasi-Monte Carlo do not depend on the number of qubits. They are computed once per scenario and budget, and repeated on each qubit row of the results.

@@ -62,11 +62,11 @@ C = S₀ N(d₁) − K e^(−rT) N(d₂), with d₁ = [ln(S₀/K) + (r + σ²/2)
 ### 3.4 Quasi-Monte Carlo, scrambled Sobol: the best classical sampler
 
 - **How.**
-  - Take a one-dimensional Sobol sequence with Owen scrambling (`scipy.stats.qmc.Sobol`, `scramble=True`).
+  - Take a one-dimensional Sobol sequence, scrambled with SciPy's default randomisation (`scipy.stats.qmc.Sobol`, `scramble=True`): a random linear matrix scramble combined with a random digital shift. This is not Owen's nested scrambling. Like Owen's, it makes each point uniformly distributed and keeps the sequence's balance properties, which is what the error estimate over repetitions needs.
   - Map each point u_j to Z_j = Φ⁻¹(u_j), then to S_T as in plain Monte Carlo, and average the discounted payoffs.
   - The number of points is the largest power of two not above the budget, because Sobol's balance properties hold for powers of two.
   - Each repetition uses a fresh scramble, so repetitions are independent randomisations and their spread measures the error. The method reports no standard error of its own.
-- **Why.** The payoff is a smooth function of one variable, apart from the kink at the strike. In one dimension, scrambled Sobol converges at close to 1/N, against 1/√N for plain Monte Carlo. That is the same rate amplitude estimation promises. Leaving it out would compare the quantum method only with the weakest classical sampler. Document 3 states in advance (H4) that amplitude estimation is **not** expected to beat it.
+- **Why.** As a function of the uniform variable u, the discounted payoff is smooth apart from the kink at the strike, but it is **unbounded** as u tends to 1, because S_T = S₀ exp(… + σ√T Φ⁻¹(u)) grows without limit in the upper tail. In one dimension, scrambled Sobol still converges at close to 1/N in most cases, against 1/√N for plain Monte Carlo, but the unbounded tail slows it when the volatility is high and the maturity long: the fitted slope is about −1 in the median of the campaign, and flatter on the widest scenarios (Document 3, section 2.8). That is the same rate amplitude estimation promises. Leaving it out would compare the quantum method only with the weakest classical sampler. Document 3 states in advance (H4) that amplitude estimation is **not** expected to beat it.
 - **Cost of the power-of-two rule.** At each budget, quasi-Monte Carlo uses fewer points than the others:
 
   | Budget (calls) | 1,800 | 3,500 | 6,800 | 13,300 | 26,200 |

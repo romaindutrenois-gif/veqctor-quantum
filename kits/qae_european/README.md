@@ -42,7 +42,7 @@ pip install -e ".[test]"
 Check the install:
 
 ```bash
-pytest tests          # 22 unit tests, a few seconds
+pytest tests          # 41 test cases (21 test functions), a few seconds
 ```
 
 No account or quantum hardware is needed: everything runs on a local simulator.
@@ -70,7 +70,7 @@ Output in the frozen environment (rounded here to 5 decimals; the command prints
 How to read it:
 
 - `black_scholes` is the reference price.
-- `grid_price` is the price on the discretised distribution (2^5 = 32 points). The gap to Black-Scholes is the **discretisation bias**; it shrinks as `--qubits` grows.
+- `grid_price` is the price on the discretised distribution (2^5 = 32 points). The gap to Black-Scholes is the **discretisation bias**. It shrinks as `--qubits` grows, but only down to a floor set by the truncation of the grid at ±4 standard deviations: about −0.05% for this option, up to −2% for a 5-year option at 80% volatility (Document 1, section 3).
 - `circuit_exact` is the price read from the exact state of the circuit. It must equal `grid_price` up to numerical precision: this checks the circuit. The difference is below 10⁻¹³ at 5 qubits and up to a relative 10⁻⁸ at 7, from Qiskit's synthesis of the state preparation (Document 1, section 11).
 - `amplitude_estimation` is one MLAE estimate using `calls` applications of the circuit A. Its error against `grid_price` is the **statistical error**.
 - `monte_carlo` uses the same number of calls (paths). Quasi-Monte Carlo uses the largest power of two not above it (a Sobol requirement). Its `stderr` is not defined for a single scrambled sequence, hence `null`.

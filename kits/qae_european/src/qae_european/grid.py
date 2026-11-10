@@ -36,8 +36,8 @@ class LognormalGrid:
     prices: np.ndarray = field(init=False, repr=False)
 
     def __post_init__(self):
-        if isinstance(self.n_qubits, bool) or not (isinstance(self.n_qubits, numbers.Integral) and 1 <= self.n_qubits <= 10):
-            raise ValueError("n_qubits must be an integer between 1 and 10 (the circuit uses one controlled rotation per grid point)")
+        if isinstance(self.n_qubits, bool) or not (isinstance(self.n_qubits, numbers.Integral) and 1 <= self.n_qubits <= 16):
+            raise ValueError("n_qubits must be an integer between 1 and 16")
         if isinstance(self.width, bool) or not (isinstance(self.width, numbers.Real) and math.isfinite(self.width) and self.width > 0):
             raise ValueError("width must be a positive finite number")
         m, s = self.option.log_mean, self.option.log_std
