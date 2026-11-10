@@ -1,5 +1,7 @@
 # qae_european: how to use the kit
 
+**Status:** version 1.0.0, ready for independent review (2026-11-10). Not yet signed off.
+
 Prices a European call under Black-Scholes with **maximum-likelihood amplitude estimation** (MLAE) on a quantum circuit simulator, and compares it with Black-Scholes, Monte Carlo and quasi-Monte Carlo.
 
 It is the simplest circuit we could build that still exercises the full amplitude-estimation method. A European call has a closed form, so this kit is not a case for using a quantum computer to price one: it is a test bench for the method, its benchmarks and its validation.
