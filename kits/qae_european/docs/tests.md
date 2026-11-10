@@ -1,6 +1,6 @@
 # Document 3: Tests
 
-**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) frozen by its commit before the campaign (422ebfb); Part 2 (results) written after the campaign. Sign-off of the whole kit by Romain Dutrenois at the end, after an independent review.
+**Kit:** qae_european 1.0.0 · **Status of this document:** Part 1 (test plan) frozen by its commit before the campaign (422ebfb); Part 2 (results) written after the third run of the campaign, following the internal and independent reviews. Sign-off of the whole kit by Romain Dutrenois at the end, after an independent review.
 
 Part 1 is pre-registered: it is written and committed **before** the campaign runs, and the commit date is the proof. Any change made after that commit is recorded in the deviations table (section 1.9), with its reason.
 
@@ -150,7 +150,7 @@ Seeds are derived from a fixed master seed (20261103) and the indices of scenari
 | --- | --- | --- | --- |
 | Author | Veqctor (kit generation) | Submitted | 2026-11-03 |
 | Internal review | Developer's reviewer (separate session, fresh clone) | Findings corrected (1.9) | 2026-11-10 |
-| Independent review | AI reviewer (separate project, no access to the build) | | |
+| Independent review | AI reviewer (separate project, no access to the build; validated by independent replication) | 1 blocking, 5 major, 8 minor, 4 notes; all addressed (`docs/review/response.md`) | 2026-11-10 |
 | Sign-off | Romain Dutrenois | | |
 
 ---
@@ -393,7 +393,7 @@ The stated purpose is a reproducible, documented test bench for amplitude estima
 
 ### 2.12 Reproduction check of this run
 
-To confirm that the uncommitted changes noted in 2.1 did not affect the results, 10 scenarios chosen at random (250 rows) were recomputed with the final committed code: REPRO_RESULT.
+To confirm that the uncommitted changes noted in 2.1 did not affect the results, 10 scenarios chosen at random (numbers 102, 415, 554, 1065, 1150, 1259, 1430, 1538, 1652 and 1737; 250 rows) were recomputed with the code at commit 77431a6, where those changes are committed. **All 250 rows match the published CSV exactly**, column by column.
 
 ### 2.13 Proposed rule for future campaigns
 

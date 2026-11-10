@@ -315,8 +315,14 @@ sampler}\label{34-quasi-monte-carlo-scrambled-sobol-the-best-classical-sampler}}
   \begin{itemize}
   \tightlist
   \item
-    Take a one-dimensional Sobol sequence with Owen scrambling
-    (\texttt{scipy.stats.qmc.Sobol}, \texttt{scramble=True}).
+    Take a one-dimensional Sobol sequence, scrambled with
+    SciPy\textquotesingle s default randomisation
+    (\texttt{scipy.stats.qmc.Sobol}, \texttt{scramble=True}): a random
+    linear matrix scramble combined with a random digital shift. This is
+    not Owen\textquotesingle s nested scrambling. Like
+    Owen\textquotesingle s, it makes each point uniformly distributed
+    and keeps the sequence\textquotesingle s balance properties, which
+    is what the error estimate over repetitions needs.
   \item
     Map each point u\_j to Z\_j = Φ⁻¹(u\_j), then to S\_T as in plain
     Monte Carlo, and average the discounted payoffs.
@@ -330,13 +336,18 @@ sampler}\label{34-quasi-monte-carlo-scrambled-sobol-the-best-classical-sampler}}
     method reports no standard error of its own.
   \end{itemize}
 \item
-  \textbf{Why.} The payoff is a smooth function of one variable, apart
-  from the kink at the strike. In one dimension, scrambled Sobol
-  converges at close to 1/N, against 1/√N for plain Monte Carlo. That is
-  the same rate amplitude estimation promises. Leaving it out would
-  compare the quantum method only with the weakest classical sampler.
-  Document 3 states in advance (H4) that amplitude estimation is
-  \textbf{not} expected to beat it.
+  \textbf{Why.} As a function of the uniform variable u, the discounted
+  payoff is smooth apart from the kink at the strike, but it is
+  \textbf{unbounded} as u tends to 1, because S\_T = S₀ exp(\ldots{} +
+  σ√T Φ⁻¹(u)) grows without limit in the upper tail. In one dimension,
+  scrambled Sobol still converges at close to 1/N in most cases, against
+  1/√N for plain Monte Carlo, but the unbounded tail slows it when the
+  volatility is high and the maturity long: the fitted slope is about −1
+  in the median of the campaign, and flatter on the widest scenarios
+  (Document 3, section 2.8). That is the same rate amplitude estimation
+  promises. Leaving it out would compare the quantum method only with
+  the weakest classical sampler. Document 3 states in advance (H4) that
+  amplitude estimation is \textbf{not} expected to beat it.
 \item
   \textbf{Cost of the power-of-two rule.} At each budget, quasi-Monte
   Carlo uses fewer points than the others:
@@ -589,7 +600,8 @@ Sobol}{6.4 quasi\_monte\_carlo.py: Quasi-Monte Carlo, scrambled Sobol}}\label{64
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{"""Quasi{-}Monte Carlo with a scrambled Sobol sequence (Owen scrambling, scipy.stats.qmc.Sobol).}
+\CommentTok{"""Quasi{-}Monte Carlo with a scrambled Sobol sequence (scipy.stats.qmc.Sobol, scramble=True: a random linear}
+\CommentTok{matrix scramble with a random digital shift, not Owen\textquotesingle{}s nested scrambling).}
 
 \CommentTok{One{-}dimensional problem: u\_j in (0,1) from the Sobol sequence, Z\_j = Phi\^{}\{{-}1\}(u\_j), then S\_T as in plain}
 \CommentTok{Monte Carlo. The number of points is the largest power of two not above the budget (Sobol\textquotesingle{}s balance}
@@ -648,8 +660,8 @@ Repetitions per configuration & 50, independent &
 Seeds & master seed 20261103; one stream per (scenario, qubits, depth,
 method) through \texttt{numpy.random.SeedSequence} &
 \texttt{campaign.rng\_for} \\
-Variance reduction & none in Monte Carlo; Owen scrambling in quasi-Monte
-Carlo & section 4 \\
+Variance reduction & none in Monte Carlo; random scrambling (linear
+matrix scramble and digital shift) in quasi-Monte Carlo & section 4 \\
 Grid for Monte Carlo on the grid & the circuit\textquotesingle s own
 \texttt{LognormalGrid(option,\ n)}, width 4 standard deviations &
 \texttt{monte\_carlo.py}, \texttt{grid.py} \\

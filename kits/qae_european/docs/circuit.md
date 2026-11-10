@@ -83,7 +83,7 @@ The kit writes a = sin²θ with θ in [0, π/2]. If every grid point is out of t
 
 ![Circuit A for 3 price qubits, reference option](img/circuit_a_3qubits.png)
 
-*Four grid points are in the money, so A has four controlled rotations. The last one is RY(π), since f = 1 at the largest payoff.*
+*The first seven rotations are the loader: one on q₂, two on q₁ controlled by q₂, four on q₀ controlled by q₁ and q₂ (open circles: control on 0). The first is RY(π/2), because the grid is symmetric in log-price, so half of the probability lies in each half. Then four grid points are in the money, so A has four payoff rotations. The last one is RY(π), since f = 1 at the largest payoff.*
 
 ## 5. The Grover operator Q
 
@@ -123,13 +123,21 @@ Probabilities are clipped to [10⁻¹⁵, 1 − 10⁻¹⁵] to avoid log(0). The
 
 Why several candidates: when two peaks of the likelihood are nearly tied, the grid can rank them in the wrong order, because it samples each peak slightly off its top. Refining only the best grid point would then return the lower peak. An earlier version did exactly that. An internal review found it failed in about 1 draw in 200 at depth 8 and in every draw at depth 14 on the widest scenario. It was corrected before the campaign was re-run (Document 3, section 1.9). A unit test now compares the estimator with a 400,001-point grid at depths 8 and 12, and `docs/checks.py` does the same for every campaign configuration with a mode error. `Ladder.exponential` accepts depths up to 16.
 
-**Known limitation: mode errors.** L(θ) has several local maxima. The higher powers make it oscillate quickly, while the low powers, which only see a few shots each, are what tell those maxima apart. Occasionally the noise in the low-power counts makes a wrong local maximum the highest one. The estimate then lands about π/(2k_max + 1) away from the true θ. Such errors are rare but large.
+**Known limitation: a heavy tail of large errors, worse at small amplitude.** L(θ) has many local maxima. The high powers make it oscillate quickly, and the low powers, which see only 100 shots each, are what tell the peaks apart. The noise in the low-power counts sometimes makes a wrong peak the highest one. The estimate then lands on a side peak, at a distance anywhere from a few standard deviations to a full period π/m_max.
 
-This is a property of MLAE with an exponential ladder, not of the optimiser: the estimate is the true global maximum of the likelihood (`docs/checks.py`, results in Document 3, section 2.9). The campaign keeps the published method unchanged, uses 50 draws per configuration, and records the share of draws affected (Document 3, sections 1.5 and 1.9).
+*Measure 1: efficiency against the Cramér-Rao bound.* For this ladder, the Cramér-Rao bound on the standard deviation of θ̂ is
 
-*How mode errors are counted.* A draw counts as a mode error when |θ̂ − θ| > π/(2 m_max), half the period of the most oscillating term. Two consequences:
-- The threshold is wide for short ladders (π/10 at depth 4). The absence of mode errors at low depth is partly a consequence of the definition.
-- A wrong peak lying closer to the true θ than the threshold would not be counted.
+  1 / (2 √(shots × Σ_k (2k + 1)²)).
+
+The Fisher information of one measurement after k steps is 4(2k + 1)², whatever θ. The campaign stores two quantities against this bound:
+- the RMS error on θ, divided by the bound;
+- the share of draws more than 4 bound standard deviations from the true θ.
+
+At depth 8, the typical draw is efficient: the median ratio is 1.05. But 1.15% of draws are beyond 4 standard deviations, about 180 times what a Gaussian estimator would give, and up to 32% in the worst configuration. The tail is heavier when a is small (Document 3, section 2.9). It is what flattens the RMSE curve in Document 3, section 2.6.
+
+*Measure 2: mode errors.* A draw counts as a mode error when |θ̂ − θ| > π/(2 m_max), half the period of the most oscillating term, which means it has jumped to another lobe. This catches only the largest errors (0.009% of draws at depth 8) and misses the side peaks inside a lobe. It is kept for continuity with the earlier runs. The threshold is also wide for short ladders (π/10 at depth 4), so the absence of mode errors at low depth is partly a consequence of the definition.
+
+These errors are a property of MLAE with an exponential ladder, not of the optimiser: the estimate is the true global maximum of the likelihood (`docs/checks.py`; Document 3, section 2.9). A ladder or shot allocation that keeps the low powers informative at small amplitude, or a variant with a built-in confidence interval such as iterative amplitude estimation, would reduce them. The kit keeps the published method.
 
 ## 7. Simulating the measurements
 
@@ -155,20 +163,24 @@ Compiled to a hardware-like gate set {CX, RZ, SX, X} with Qiskit's transpiler (o
 
 | Price qubits n | Qubits | CNOTs in A | Depth of A | CNOTs in Q | Depth of Q |
 | --- | --- | --- | --- | --- | --- |
-| 3 | 4 | 84 | 290 | 182 | 606 |
-| 4 | 5 | 203 | 387 | 442 | 852 |
-| 5 | 6 | 626 | 1,037 | 1,334 | 2,178 |
-| 6 | 7 | 1,737 | 2,548 | 3,596 | 5,230 |
-| 7 | 8 | 5,000 | 12,155 | 10,170 | 24,491 |
+| 3 | 4 | 116 | 409 | 246 | 846 |
+| 4 | 5 | 388 | 1,038 | 812 | 2,161 |
+| 5 | 6 | 1,180 | 2,330 | 2,442 | 4,762 |
+| 6 | 7 | 3,540 | 5,674 | 7,202 | 11,474 |
+| 7 | 8 | 10,324 | 19,841 | 20,818 | 39,824 |
+
+Depths can differ slightly between builds and Qiskit versions: an independent rebuild of the earlier circuit gave the same CNOT counts and depths within 0.2%.
 
 ![CNOT count against the number of price qubits](img/circuit_size.png)
 
 The count roughly triples per added qubit, i.e. it grows exponentially. Both blocks are to blame:
 
-- exact state preparation;
-- one multi-controlled rotation per in-the-money point.
+- exact loading: 2ⁿ − 1 rotations, most of them multi-controlled;
+- one rotation controlled on all n price qubits per in-the-money point.
 
-At depth 8, one measurement at k = 64 applies Q 64 times: about 85,000 CNOTs for n = 5. That is far beyond today's noisy hardware, which is why the kit runs on a simulator. Efficient loading is the open problem for practical use (Vazquez and Woerner, 2021; Stamatopoulos and Zeng, 2024).
+The explicit loader costs about twice the CNOTs of Qiskit's generic synthesis at n = 7 (10,324 in A, against 5,000 in earlier versions). The kit chooses accuracy over size, because the circuit is simulated, not run.
+
+At depth 8, one measurement at k = 64 applies Q 64 times: about 160,000 CNOTs for n = 5. That is far beyond today's noisy hardware, which is why the kit runs on a simulator. Efficient loading is the open problem for practical use (Vazquez and Woerner, 2021; Stamatopoulos and Zeng, 2024).
 
 ## 9. Inputs and outputs
 
@@ -232,12 +244,34 @@ python docs/checks.py                          # results/checks.json: state-prep
 ## 11. Limitations
 
 - **Exact loading does not scale** (section 8). The kit demonstrates the method, not a practical pricer.
-- **Numerical precision.** With the explicit loader (section 4), the circuit price matches the grid price to a relative 10⁻¹² at n = 7, from rounding in the loader and in the decomposition of the multi-controlled rotations. A generic state-preparation routine can be far less accurate: Qiskit's `StatePreparation`, used by earlier versions of the kit, reached 6·10⁻¹⁰ on the loaded probabilities at n = 7 (`docs/checks.py`).
+- **Numerical precision.** With the explicit loader (section 4), the circuit price matches the grid price to a relative 1.6·10⁻¹² over the whole campaign, from rounding in the loader and in the decomposition of the multi-controlled rotations. A generic state-preparation routine can be far less accurate: Qiskit's `StatePreparation`, used by earlier versions of the kit, reached 6·10⁻¹⁰ on the loaded probabilities at n = 7 (`docs/checks.py`).
 - **Noise-free simulation.** No hardware noise and no error mitigation. Real hardware would add errors that grow with circuit depth.
-- **The error is scaled by the largest payoff.** The price is read as e^(−rT) g_max a. With high volatility or long maturity, g_max is far above the price: on the 5-year, 60%-volatility at-the-money scenario, g_max ≈ 7,100 for a price of about 49. The amplitude a is then small, and its error is magnified in the price. A narrower `width` reduces g_max but increases the truncation bias. The default, 4 standard deviations, is a common choice and is not tuned per scenario.
-- **Mode errors of MLAE** (section 6).
+- **The error is scaled by the largest payoff.** The price is read as e^(−rT) g_max a. With high volatility or long maturity, g_max is far above the price: on the 5-year, 60%-volatility at-the-money scenario, g_max ≈ 7,100 at n = 5 for a price of about 49. The amplitude a is then small, and its error is magnified in the price. A narrower `width` reduces g_max but increases the truncation bias, and a wider one does the opposite (section 3). The default, 4 standard deviations, is not tuned per scenario.
+- **A bias floor for wide distributions** (section 3). At the default width, the grid price cannot get closer to Black-Scholes than the truncation bias, whatever the number of qubits: up to −2% for s = σ√T ≈ 1.8.
+- **Large estimation errors at small amplitude** (section 6). The estimator is efficient for the typical draw, but has a heavy tail of large errors, which grows as a falls. Below a ≈ 0.01, its advantage over Monte Carlo and its convergence rate both degrade (Document 3, sections 2.5, 2.6).
 - **Call counts are not run times.** On a fault-tolerant machine, one application of A takes far longer than one Monte Carlo path on a classical processor. Published estimates of where a practical advantage could appear are in Chakrabarti et al. (2021) and Stamatopoulos and Zeng (2024).
 - **One product.** The construction applies to any payoff of S_T that is non-negative on the grid (user guide, section 7). Path-dependent payoffs need a register per time step and are out of scope.
+
+## 12. Resource estimate at a target accuracy
+
+What would it take to price with a given statistical accuracy? `docs/resource_estimate.py` fits the campaign's error curve of amplitude estimation (RMSE against the grid price over the 5 budgets, n = 7) and extrapolates it to a relative error of 1%, 0.1% and 0.01% of the grid price. It then finds the smallest exponential ladder that provides the calls needed and counts the CNOTs of its deepest circuit. Plain Monte Carlo on the grid is extrapolated the same way [`results/resources.json`].
+
+| Scenario (n = 7) | Target (relative RMSE) | Calls of A | Ladder depth | Largest Grover power | CNOTs in the deepest circuit | Plain Monte Carlo paths |
+| --- | --- | --- | --- | --- | --- | --- |
+| K/S = 1.05, 1Y, 20%, r = 1% (a = 0.056) | 1% | 7,600 | 7 | 32 | 0.67 million | 47,000 |
+| | 0.1% | 92,000 | 10 | 256 | 5.3 million | 7.6 million |
+| | 0.01% | 1.1 million | 14 | 4,096 | 84 million | 1.2 billion |
+| At the money, 5Y, 60%, r = 0% (scenario 1000, a = 0.006) | 1% | 22,000 | 8 | 64 | 1.3 million | 290,000 |
+| | 0.1% | 244,000 | 12 | 1,024 | 20 million | 63 million |
+| | 0.01% | 2.7 million | 15 | 8,192 | 160 million | 14 billion |
+
+*Calls of A* is the fitted number; the ladder provides at least that many. Every row beyond 26,200 calls is an extrapolation of the fitted rate: −0.92 for the first scenario, −0.96 for the second.
+
+**How to read it:**
+- **On calls, amplitude estimation wins by a widening margin.** At 0.01% accuracy, it needs about 1,000 to 5,000 times fewer calls than plain Monte Carlo on the grid. That is the quadratic speed-up, extrapolated.
+- **The circuits are far beyond any machine.** The deepest circuit at 0.1% accuracy has 5 to 20 million CNOTs, all of which must run without error. Without error correction, this is out of reach: today's hardware runs a few thousand two-qubit gates before noise dominates.
+- **The estimate covers neither error correction nor run time.** On a fault-tolerant machine, each logical gate is much slower than a classical operation. For realistic payoffs, the most recent published estimate is about 4,700 logical qubits, 10⁹ T gates and a 45 MHz logical clock rate to beat Monte Carlo (Stamatopoulos and Zeng, 2024; earlier, Chakrabarti et al., 2021: about 7,500 logical qubits). These figures are far beyond current machines.
+- **A European call needs none of this.** The closed form is exact and instant, and quasi-Monte Carlo already reaches these accuracies with fewer points (Document 3, section 2.8). The estimate shows the method's scaling on the simplest case, not a use case.
 
 ## References
 
@@ -245,5 +279,6 @@ python docs/checks.py                          # results/checks.json: state-prep
 - Stamatopoulos, Egger, Sun, Zoufal, Iten, Shen, Woerner, *Option pricing using quantum computers*, Quantum 4, 291 (2020). [arXiv:1905.02666](https://arxiv.org/abs/1905.02666)
 - Brassard, Høyer, Mosca, Tapp, *Quantum amplitude amplification and estimation*, Contemporary Mathematics 305 (2002). [arXiv:quant-ph/0005055](https://arxiv.org/abs/quant-ph/0005055)
 - Chakrabarti, Krishnakumar, Mazzola, Stamatopoulos, Woerner, Zeng, *A threshold for quantum advantage in derivative pricing*, Quantum 5, 463 (2021). [arXiv:2012.03819](https://arxiv.org/abs/2012.03819)
+- Grover, Rudolph, *Creating superpositions that correspond to efficiently integrable probability distributions* (2002). [arXiv:quant-ph/0208112](https://arxiv.org/abs/quant-ph/0208112)
 - Vazquez, Woerner, *Efficient state preparation for quantum amplitude estimation*, Physical Review Applied 15, 034027 (2021). [arXiv:2005.07711](https://arxiv.org/abs/2005.07711)
 - Stamatopoulos, Zeng, *Derivative pricing using quantum signal processing*, Quantum 8, 1322 (2024). [arXiv:2307.14310](https://arxiv.org/abs/2307.14310)
